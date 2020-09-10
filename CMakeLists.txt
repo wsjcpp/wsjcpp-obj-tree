@@ -10,6 +10,8 @@ set(EXECUTABLE_OUTPUT_PATH ${wsjcpp-obj-tree_SOURCE_DIR})
 # include header dirs
 list (APPEND WSJCPP_INCLUDE_DIRS "src")
 
+list (APPEND WSJCPP_SOURCES "./src/wsjcpp_obj_tree.h")
+list (APPEND WSJCPP_SOURCES "./src/wsjcpp_obj_tree.cpp")
 list (APPEND WSJCPP_SOURCES "src/main.cpp")
 
 #### BEGIN_WSJCPP_APPEND
@@ -27,4 +29,5 @@ install(
     RUNTIME DESTINATION
         /usr/bin
 )
+
 

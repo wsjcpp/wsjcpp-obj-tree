@@ -1,5 +1,8 @@
 .wsjcpp/*
 tmp/*
+wsjcpp-obj-tree
+.logs/*
+.vscode/*
 
 # Prerequisites
 *.d

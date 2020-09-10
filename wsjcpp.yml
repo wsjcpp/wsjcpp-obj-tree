@@ -7,7 +7,7 @@ authors:
   - name: "Evgenii Sopov"
     email: "mrseakg@gmail.com"
 origins:
-  - address: "https://sea-kg.com/wsjcpp-package-registry/"
+  - address: "https://wsjcpp.org/wsjcpp-package-registry/"
     type: "package-registry"
 keywords:
   - "c++"
@@ -17,3 +17,18 @@ dependencies:
     url: "https://github.com/wsjcpp/wsjcpp-core:master"
     origin: "https://github.com/"
     installation-dir: "./src.wsjcpp/wsjcpp_core"
+distribution:
+  - source-file: "src/wsjcpp_obj_tree.h"
+    target-file: "wsjcpp_obj_tree.h"
+    type: "source-code"
+  - source-file: "src/wsjcpp_obj_tree.cpp"
+    target-file: "wsjcpp_obj_tree.cpp"
+    type: "source-code"
+unit-tests:
+  cases:
+    - name: "AddNode"
+      description: ""
+    - name: "WriteTree"
+      description: ""
+    - name: "FindNodes"
+      description: ""

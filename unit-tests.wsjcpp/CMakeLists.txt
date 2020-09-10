@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 
 project(unit-tests C CXX)
 add_definitions(-DWSJCPP_APP_VERSION="ut-v0.0.1")
-add_definitions(-DWSJCPP_APP_NAME="unit-tests-wsjcpp-obj-tree.git")
+add_definitions(-DWSJCPP_APP_NAME="unit-tests-wsjcpp-obj-tree")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(MACOSX TRUE)
@@ -29,11 +29,19 @@ list (APPEND WSJCPP_SOURCES "../src.wsjcpp/wsjcpp_core/wsjcpp_unit_tests_main.cp
 list (APPEND WSJCPP_SOURCES "../src.wsjcpp/wsjcpp_core/wsjcpp_resources_manager.h")
 list (APPEND WSJCPP_SOURCES "../src.wsjcpp/wsjcpp_core/wsjcpp_resources_manager.cpp")
 
-# wsjcpp-obj-tree.git:v0.0.1
+# wsjcpp-obj-tree:v0.0.1
 list (APPEND WSJCPP_INCLUDE_DIRS "../src")
+list (APPEND WSJCPP_SOURCES "../src/wsjcpp_obj_tree.h")
+list (APPEND WSJCPP_SOURCES "../src/wsjcpp_obj_tree.cpp")
 
 # unit-tests
 list (APPEND WSJCPP_INCLUDE_DIRS "src")
+list (APPEND WSJCPP_SOURCES "../unit-tests.wsjcpp/src/unit_test_add_node.h")
+list (APPEND WSJCPP_SOURCES "../unit-tests.wsjcpp/src/unit_test_add_node.cpp")
+list (APPEND WSJCPP_SOURCES "../unit-tests.wsjcpp/src/unit_test_write_tree.h")
+list (APPEND WSJCPP_SOURCES "../unit-tests.wsjcpp/src/unit_test_write_tree.cpp")
+list (APPEND WSJCPP_SOURCES "../unit-tests.wsjcpp/src/unit_test_find_nodes.h")
+list (APPEND WSJCPP_SOURCES "../unit-tests.wsjcpp/src/unit_test_find_nodes.cpp")
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.user-custom.txt)
 
