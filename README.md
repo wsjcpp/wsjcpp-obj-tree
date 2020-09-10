@@ -1,2 +1,2 @@
 # wsjcpp-obj-tree
-multi type node tree
+Multi Object Tree
