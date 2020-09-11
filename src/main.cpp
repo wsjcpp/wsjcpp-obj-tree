@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <wsjcpp_core.h>
 #include <wsjcpp_obj_tree.h>
+#include <wsjcpp_obj_tree_node_building.h>
 
 int main(int argc, const char* argv[]) {
     std::string TAG = "MAIN";
@@ -19,10 +20,12 @@ int main(int argc, const char* argv[]) {
     tree.addSupportType<WsjcppObjTreeNodeInteger>();
     tree.addSupportType<WsjcppObjTreeNodeFloat>();
     tree.addSupportType<WsjcppObjTreeNodeDouble>();
+    tree.addSupportType<WsjcppObjTreeNodeBuilding>();
 
     WsjcppObjTreeChainDeclare chain(&tree);
-
     chain
+        .add(Address("Morpheus","1/35a"))
+        .up()
         .add("Motherboard")
             .add("CPU_SOCKET")
                 .add("count")

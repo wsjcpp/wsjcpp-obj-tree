@@ -161,7 +161,7 @@ class WsjcppObjTreeNodeString : public WsjcppObjTreeNode {
         std::string getValue();
         void setValue(const std::string &sValue);
         
-        // TreeNode
+        // WsjcppObjTreeNode
         virtual int getDataSize() override;
         virtual const char *getData() override;
 
@@ -198,7 +198,7 @@ class WsjcppObjTreeNodeFloat : public WsjcppObjTreeNode {
         float getValue();
         void setValue(float nValue);
 
-        // TreeNode
+        // WsjcppObjTreeNode
         virtual int getDataSize() override;
         virtual const char *getData() override;
 

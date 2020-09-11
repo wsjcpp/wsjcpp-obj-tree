@@ -6,17 +6,23 @@ description: "Multi Object Tree"
 authors:
   - name: "Evgenii Sopov"
     email: "mrseakg@gmail.com"
+
 origins:
   - address: "https://wsjcpp.org/wsjcpp-package-registry/"
     type: "package-registry"
+
 keywords:
   - "c++"
+  - "tree"
+  - "custom nodes"
+
 dependencies:
   - name: "wsjcpp-core"
     version: "v0.1.7"
     url: "https://github.com/wsjcpp/wsjcpp-core:master"
     origin: "https://github.com/"
     installation-dir: "./src.wsjcpp/wsjcpp_core"
+
 distribution:
   - source-file: "src/wsjcpp_obj_tree.h"
     target-file: "wsjcpp_obj_tree.h"
@@ -24,6 +30,10 @@ distribution:
   - source-file: "src/wsjcpp_obj_tree.cpp"
     target-file: "wsjcpp_obj_tree.cpp"
     type: "source-code"
+  - source-file: "scripts.wsjcpp/generate.WsjcppObjTreeNode"
+    target-file: "generate.WsjcppObjTreeNode"
+    type: "safe-scripting-generate"
+
 unit-tests:
   cases:
     - name: "AddNode"
