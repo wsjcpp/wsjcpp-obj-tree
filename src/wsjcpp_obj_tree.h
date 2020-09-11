@@ -26,10 +26,12 @@ class WsjcppObjTreeNode {
         // virtual zero methods will be deny create basic class
         virtual int getDataSize() = 0;
         virtual const char *getData() = 0;
+        virtual std::string toString(const std::string &sIntent = "") = 0;
 
         WsjcppObjTreeNode *getParent();
         uint32_t getId();
         const std::vector<WsjcppObjTreeNode *> &getChilds();
+        bool hasChilds();
 
     protected:
         void setParent(WsjcppObjTreeNode *pParent);
@@ -107,7 +109,10 @@ class WsjcppObjTree {
             }
             return nRet;
         };
-        
+
+        int getRoots(std::vector<WsjcppObjTreeNode *> &vRoots);
+        std::string toString(); // for printing
+
     private:
         std::string TAG;
         std::vector<WsjcppObjTreeNode *> m_vNodes;
@@ -116,6 +121,8 @@ class WsjcppObjTree {
 
         void writeUInt32(std::ofstream &f, uint32_t nVal);
         void writeUInt16(std::ofstream &f, uint16_t nVal);
+
+        std::string toStringRecoursiveChilds(WsjcppObjTreeNode *pNode, const std::string &sIntent);
 };
 
 class WsjcppObjTreeChainDeclare {
@@ -164,6 +171,7 @@ class WsjcppObjTreeNodeString : public WsjcppObjTreeNode {
         // WsjcppObjTreeNode
         virtual int getDataSize() override;
         virtual const char *getData() override;
+        virtual std::string toString(const std::string &sIntent = "") override;
 
     private:
         std::string m_sValue;
@@ -183,6 +191,7 @@ class WsjcppObjTreeNodeInteger : public WsjcppObjTreeNode {
         // WsjcppObjTreeNode
         virtual int getDataSize() override;
         virtual const char *getData() override;
+        virtual std::string toString(const std::string &sIntent = "") override;
 
     private:
         int32_t m_nValue;
@@ -201,6 +210,7 @@ class WsjcppObjTreeNodeFloat : public WsjcppObjTreeNode {
         // WsjcppObjTreeNode
         virtual int getDataSize() override;
         virtual const char *getData() override;
+        virtual std::string toString(const std::string &sIntent = "") override;
 
     private:
         float m_nValue;
@@ -217,9 +227,10 @@ class WsjcppObjTreeNodeDouble : public WsjcppObjTreeNode {
         float getValue();
         void setValue(float nValue);
 
-        // TreeNode
+        // WsjcppObjTreeNode
         virtual int getDataSize() override;
         virtual const char *getData() override;
+        virtual std::string toString(const std::string &sIntent = "") override;
 
     private:
         double m_nValue;

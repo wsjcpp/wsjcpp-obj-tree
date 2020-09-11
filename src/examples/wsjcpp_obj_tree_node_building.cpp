@@ -13,27 +13,34 @@ Address::Address() {
 // ---------------------------------------------------------------------
 
 Address::Address(const Address& address) {
-    m_sStreet = address.getStreet();
-    m_sBuilding = address.getBuilding();
+    m_sStreetName = address.getStreetName();
+    m_sBuildingNumber = address.getBuildingNumber();
 }
 
 // ---------------------------------------------------------------------
 
-Address::Address(std::string sStreet, std::string sBuilding) {
-    m_sStreet = sStreet;
-    m_sBuilding = sBuilding;
+Address::Address(std::string sStreetName, std::string sBuildingNumber) {
+    m_sStreetName = sStreetName;
+    m_sBuildingNumber = sBuildingNumber;
 }
 
 // ---------------------------------------------------------------------
 
-std::string Address::getStreet() const {
-    return m_sStreet;
+std::string Address::getStreetName() const {
+    return m_sStreetName;
 }
 
 // ---------------------------------------------------------------------
 
-std::string Address::getBuilding() const {
-    return m_sBuilding;
+std::string Address::getBuildingNumber() const {
+    return m_sBuildingNumber;
+}
+
+// ---------------------------------------------------------------------
+
+bool Address::operator==(const Address& rhs) const {
+    return this->getStreetName() == rhs.getStreetName()
+        && this->getBuildingNumber() == rhs.getBuildingNumber();
 }
 
 // ---------------------------------------------------------------------
@@ -58,6 +65,18 @@ void WsjcppObjTreeNodeBuilding::setValue(const Address &nValue) {
 
 // ---------------------------------------------------------------------
 
+void WsjcppObjTreeNodeBuilding::setNumberOfFloors(int n) {
+    m_nNumberOfFloors = n;
+}
+
+// ---------------------------------------------------------------------
+
+int WsjcppObjTreeNodeBuilding::getNumberOfFloors() {
+    return m_nNumberOfFloors;
+}
+
+// ---------------------------------------------------------------------
+
 int WsjcppObjTreeNodeBuilding::getDataSize() {
     WsjcppLog::throw_err("WsjcppObjTreeNodeBuilding", "::getDataSize() Not implemented");
     return sizeof(Address);
@@ -70,4 +89,11 @@ const char *WsjcppObjTreeNodeBuilding::getData() {
     return reinterpret_cast<const char *>(&m_value);
 }
 
+// ---------------------------------------------------------------------
 
+std::string WsjcppObjTreeNodeBuilding::toString(const std::string &sIntent) {
+    return
+        "Building: st. " + m_value.getStreetName() + ", " + m_value.getBuildingNumber()
+        + "\n" + sIntent + "number-of-floors: " + std::to_string(m_nNumberOfFloors);
+    ;
+}

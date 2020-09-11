@@ -50,7 +50,9 @@ concat content_header "#ifndef " ifndef_header "
 #include <wsjcpp_obj_tree.h>
 
 class " init_class_name " {
-    // nothing yet
+    public:
+        " init_class_name "();
+        bool operator==(const " init_class_name "& rhs) const;
 };
 
 static uint16_t " name_of_type " = " id_of_type ";
@@ -66,7 +68,7 @@ class " class_name " : public WsjcppObjTreeNode {
         // WsjcppObjTreeNode
         virtual int getDataSize() override;
         virtual const char *getData() override;
-
+        virtual std::string toString(const std::string &sIntent = \"\") override;
     private:
         " init_class_name " m_value;
 };
@@ -81,6 +83,20 @@ concat content_source "
 #include \"" base_filename ".h\"
 #include <wsjcpp_core.h>
 #include <wsjcpp_obj_tree.h>
+
+// ---------------------------------------------------------------------
+// " init_class_name "
+
+" init_class_name "::" init_class_name "() {
+    // nothing
+}
+
+// ---------------------------------------------------------------------
+
+bool " init_class_name "::operator==(const " init_class_name "& rhs) const {
+    // todo
+    return false;
+}
 
 // ---------------------------------------------------------------------
 // " class_name "
@@ -114,6 +130,12 @@ int " class_name "::getDataSize() {
 const char *" class_name "::getData() {
     WsjcppLog::throw_err(\"" class_name "\", \"::getData() Not implemented\");
     return reinterpret_cast<const char *>(&m_value);
+}
+
+// ---------------------------------------------------------------------
+
+std::string " class_name "::toString(const std::string &sIntent) {
+    return \"" arg1 ": TODO\";
 }
 
 "

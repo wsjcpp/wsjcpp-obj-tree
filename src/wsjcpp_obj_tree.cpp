@@ -46,6 +46,12 @@ const std::vector<WsjcppObjTreeNode *> &WsjcppObjTreeNode::getChilds() {
 
 // ---------------------------------------------------------------------
 
+bool WsjcppObjTreeNode::hasChilds() {
+    return m_vChilds.size() > 0;
+}
+
+// ---------------------------------------------------------------------
+
 void WsjcppObjTreeNode::setParent(WsjcppObjTreeNode *pParent) {
     m_pParent = pParent;
 }
@@ -194,6 +200,27 @@ bool WsjcppObjTree::hasNode(WsjcppObjTreeNode *pNode) {
 
 // ---------------------------------------------------------------------
 
+int WsjcppObjTree::getRoots(std::vector<WsjcppObjTreeNode *> &vRoots) {
+    int nRet = 0;
+    std::vector<WsjcppObjTreeNode *>::iterator it = m_vNodes.begin();
+    for (it = m_vNodes.begin(); it != m_vNodes.end(); ++it) {
+        if ((*it)->getParent() == nullptr) {
+            vRoots.push_back(*it);
+            nRet++;
+        }
+    }
+    return nRet;
+}
+
+// ---------------------------------------------------------------------
+
+std::string WsjcppObjTree::toString() { // for printing
+    std::string sIntent = "";
+    return toStringRecoursiveChilds(nullptr, sIntent);
+}
+
+// ---------------------------------------------------------------------
+
 void WsjcppObjTree::writeUInt32(std::ofstream &f, uint32_t nVal) {
     // not for multithreading
     // TODO redesign to reinterpret_cast<const char *>(&m_nValue);
@@ -213,6 +240,31 @@ void WsjcppObjTree::writeUInt16(std::ofstream &f, uint16_t nVal) {
     arrShort[0] = (nVal >> 8) & 0xFF;
     arrShort[1] = nVal & 0xFF;
     f.write((const char *)arrShort, 2);
+}
+
+// ---------------------------------------------------------------------
+
+std::string WsjcppObjTree::toStringRecoursiveChilds(WsjcppObjTreeNode *pNode, const std::string &sIntent) {
+    std::string sRet;
+    std::vector<WsjcppObjTreeNode *> vChilds;
+    if (pNode == nullptr) {
+        getRoots(vChilds);
+    } else {
+        vChilds = pNode->getChilds();
+    }
+    int nLen = vChilds.size();
+    for (int i = 0; i < nLen; i++) {
+        bool bLatestChild = (i == nLen-1);
+        WsjcppObjTreeNode *pNode = vChilds[i];
+        sRet += sIntent;
+        sRet += bLatestChild ? "└─ " : "├─ ";
+        std::string sIntentAppend = bLatestChild ? "   " : "│  ";
+        sRet += pNode->toString(sIntent + sIntentAppend) + "\n";
+        if (pNode->hasChilds()) {
+            sRet += toStringRecoursiveChilds(pNode, sIntent + sIntentAppend);
+        }
+    }
+    return sRet;
 }
 
 // ---------------------------------------------------------------------
@@ -284,6 +336,12 @@ const char *WsjcppObjTreeNodeString::getData() {
 }
 
 // ---------------------------------------------------------------------
+
+std::string WsjcppObjTreeNodeString::toString(const std::string &sIntent) {
+    return "string: " + m_sValue;
+}
+
+// ---------------------------------------------------------------------
 // WsjcppObjTreeNodeInteger
 
 WsjcppObjTreeNodeInteger::WsjcppObjTreeNodeInteger(WsjcppObjTree *pTree, const int32_t &nValue)
@@ -314,6 +372,12 @@ int WsjcppObjTreeNodeInteger::getDataSize() {
 const char *WsjcppObjTreeNodeInteger::getData() {
     const char *p = reinterpret_cast<const char *>(&m_nValue);
     return p;
+}
+
+// ---------------------------------------------------------------------
+
+std::string WsjcppObjTreeNodeInteger::toString(const std::string &sIntent) {
+    return "int: " + std::to_string(m_nValue);
 }
 
 // ---------------------------------------------------------------------
@@ -349,6 +413,11 @@ const char *WsjcppObjTreeNodeFloat::getData() {
     return reinterpret_cast<const char *>(&m_nValue);
 }
 
+// ---------------------------------------------------------------------
+
+std::string WsjcppObjTreeNodeFloat::toString(const std::string &sIntent) {
+    return "float: " + std::to_string(m_nValue);
+}
 
 // ---------------------------------------------------------------------
 // WsjcppObjTreeNodeDouble
@@ -383,3 +452,8 @@ const char *WsjcppObjTreeNodeDouble::getData() {
     return reinterpret_cast<const char *>(&m_nValue);
 }
 
+// ---------------------------------------------------------------------
+
+std::string WsjcppObjTreeNodeDouble::toString(const std::string &sIntent) {
+    return "double: " + std::to_string(m_nValue);
+}

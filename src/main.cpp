@@ -22,9 +22,11 @@ int main(int argc, const char* argv[]) {
     tree.addSupportType<WsjcppObjTreeNodeDouble>();
     tree.addSupportType<WsjcppObjTreeNodeBuilding>();
 
+    Address addr0("Morpheus","1/35a");
+
     WsjcppObjTreeChainDeclare chain(&tree);
     chain
-        .add(Address("Morpheus","1/35a"))
+        .add(addr0)
         .up()
         .add("Motherboard")
             .add("CPU_SOCKET")
@@ -34,17 +36,30 @@ int main(int argc, const char* argv[]) {
                 .add("frequency")
                     .add(3.2).up()
                 .up()
+            .up()
             .add("GPU_SOCKET")
                 .add(1).up()
+            .up()
             .add("USB-A")
                 .add(4).up()
+            .up()
             .add("PCI")
                 .add(3).up()
+            .up()
             .add("PCI_EXPRESS")
                 .add(1).up()
             .up()
         .up()
     ;
+    
+    std::vector<WsjcppObjTreeNodeBuilding *> vFoundNodes;
+    if (tree.findNodes(addr0, vFoundNodes) > 0) {
+        for (int i = 0; i < vFoundNodes.size(); i++) {
+            vFoundNodes[i]->setNumberOfFloors(5);
+        }
+    }
+
+    std::cout << tree.toString();
 
     return 0;
 }
