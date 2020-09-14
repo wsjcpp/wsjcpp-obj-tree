@@ -26,6 +26,8 @@ class WsjcppObjTreeNode {
         // virtual zero methods will be deny create basic class
         virtual int getDataSize() = 0;
         virtual const char *getData() = 0;
+        virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) = 0;
+
         virtual std::string toString(const std::string &sIntent = "") = 0;
 
         WsjcppObjTreeNode *getParent();
@@ -41,9 +43,9 @@ class WsjcppObjTreeNode {
     private:
         WsjcppObjTree *m_pTree;
         WsjcppObjTreeNode *m_pParent;
-        uint32_t m_nId;
+        uint32_t m_nId; // it uniq identified node in a list
         std::vector<WsjcppObjTreeNode *> m_vChilds;
-        uint16_t m_nType;  
+        uint16_t m_nType;
 };
 
 class IFabricWsjcppObjTreeNode {
@@ -116,11 +118,14 @@ class WsjcppObjTree {
     private:
         std::string TAG;
         std::vector<WsjcppObjTreeNode *> m_vNodes;
-        int m_nLastId;
+        uint32_t m_nLastId; // Need for future if will be implemented function of remove nodes
         std::map<uint16_t, IFabricWsjcppObjTreeNode*> m_mapFabricTreeNode;
 
         void writeUInt32(std::ofstream &f, uint32_t nVal);
+        bool readUInt32(std::ifstream &f, uint32_t &nVal, std::string &sError);
+
         void writeUInt16(std::ofstream &f, uint16_t nVal);
+        bool readUInt16(std::ifstream &f, uint16_t &nVal, std::string &sError);
 
         std::string toStringRecoursiveChilds(WsjcppObjTreeNode *pNode, const std::string &sIntent);
 };
@@ -171,6 +176,7 @@ class WsjcppObjTreeNodeString : public WsjcppObjTreeNode {
         // WsjcppObjTreeNode
         virtual int getDataSize() override;
         virtual const char *getData() override;
+        virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) override;
         virtual std::string toString(const std::string &sIntent = "") override;
 
     private:
@@ -191,6 +197,7 @@ class WsjcppObjTreeNodeInteger : public WsjcppObjTreeNode {
         // WsjcppObjTreeNode
         virtual int getDataSize() override;
         virtual const char *getData() override;
+        virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) override;
         virtual std::string toString(const std::string &sIntent = "") override;
 
     private:
@@ -210,6 +217,7 @@ class WsjcppObjTreeNodeFloat : public WsjcppObjTreeNode {
         // WsjcppObjTreeNode
         virtual int getDataSize() override;
         virtual const char *getData() override;
+        virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) override;
         virtual std::string toString(const std::string &sIntent = "") override;
 
     private:
@@ -230,6 +238,7 @@ class WsjcppObjTreeNodeDouble : public WsjcppObjTreeNode {
         // WsjcppObjTreeNode
         virtual int getDataSize() override;
         virtual const char *getData() override;
+        virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) override;
         virtual std::string toString(const std::string &sIntent = "") override;
 
     private:

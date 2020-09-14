@@ -43,12 +43,16 @@ bool UnitTestWriteTree::run() {
                 .add("frequency")
                     .add(3.2).up()
                 .up()
+            .up()
             .add("GPU_SOCKET")
                 .add(1).up()
+            .up()
             .add("USB-A")
                 .add(4).up()
+            .up()
             .add("PCI")
                 .add(3).up()
+            .up()
             .add("PCI_EXPRESS")
                 .add(1).up()
             .up()
@@ -59,6 +63,7 @@ bool UnitTestWriteTree::run() {
         WsjcppCore::makeDir("./data/tmp");
     }
 
+    WsjcppLog::info(TAG, "\n" + comp.toString());
     std::string sFilename = "./data/tmp/example.obj-tree";
     std::string sError;
     bool bWrote = comp.writeTreeToFile(sFilename, sError);

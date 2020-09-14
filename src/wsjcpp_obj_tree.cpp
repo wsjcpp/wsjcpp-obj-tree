@@ -11,7 +11,6 @@ WsjcppObjTreeNode::WsjcppObjTreeNode(WsjcppObjTree *pTree, uint16_t nType) {
     m_pTree = pTree;
     m_pParent = nullptr;
     m_nType = nType;
-    // TODO regestry in global factory
 }
 
 // ---------------------------------------------------------------------
@@ -92,8 +91,71 @@ WsjcppObjTree::~WsjcppObjTree() {
 
 bool WsjcppObjTree::readTreeFromFile(const std::string &sFilename, std::string &sError) {
     if (!WsjcppCore::fileExists(sFilename)) {
+        sError = "File not exists";
         return false;
     }
+
+    clearNodes();
+    std::ifstream f;
+    f.open(sFilename.c_str(), std::ios::in | std::ios::binary);
+
+    uint32_t nTreeSize = 0;
+    if (!this->readUInt32(f, nTreeSize, sError)) {
+        return false;
+    }
+
+    if (!this->readUInt32(f, m_nLastId, sError)) {
+        return false;
+    }
+
+    std::map<uint32_t, WsjcppObjTreeNode *> mapTempIdToNode;
+    for (int i = 0; i < nTreeSize; i++) {
+        uint16_t nNodeType = 0;
+        if (!this->readUInt16(f, nNodeType, sError)) {
+            return false;
+        }
+
+        if (m_mapFabricTreeNode.find(nNodeType) == m_mapFabricTreeNode.end()) {
+            sError = "On read file could not found node type: " + std::to_string(nNodeType);
+            return false;
+        }
+
+        // read parent id
+        uint32_t nParentId = 0;
+        if (!this->readUInt32(f, nParentId, sError)) {
+            return false;
+        }
+        WsjcppObjTreeNode *pParentNode = nullptr; // TODO find by Id
+
+        if (mapTempIdToNode.find(nParentId) != mapTempIdToNode.end()) {
+            pParentNode = mapTempIdToNode[nParentId];
+        }
+
+        // read node id
+        uint32_t nNodeId = 0;
+        if (!this->readUInt32(f, nNodeId, sError)) {
+            return false;
+        }
+        
+
+        if (nNodeId > m_nLastId) {
+            sError = "Node id '" + std::to_string(nNodeId) + "' could not more then last id " + std::to_string(m_nLastId);
+            return false;
+        }
+
+        WsjcppObjTreeNode *pNode = m_mapFabricTreeNode[nNodeType]->create();
+        pNode->setId(nNodeId);
+        pNode->setParent(pParentNode);
+        if (pParentNode != nullptr) {
+            pParentNode->addChild(pNode);
+        }
+        if (!pNode->readDataPartFromFile(f, sError)) {
+            return false;
+        }
+        mapTempIdToNode[nNodeId] = pNode;
+        m_vNodes.push_back(pNode);
+    }
+    f.close();
     return true;
 }
 
@@ -222,24 +284,43 @@ std::string WsjcppObjTree::toString() { // for printing
 // ---------------------------------------------------------------------
 
 void WsjcppObjTree::writeUInt32(std::ofstream &f, uint32_t nVal) {
+    const char *pBuffer = reinterpret_cast<const char *>(&nVal);
+    f.write(pBuffer, 4);
+}
+
+// ---------------------------------------------------------------------
+
+bool WsjcppObjTree::readUInt32(std::ifstream &f, uint32_t &nVal, std::string &sError) {
     // not for multithreading
-    // TODO redesign to reinterpret_cast<const char *>(&m_nValue);
-    static unsigned char arrInteger[4];
-    arrInteger[0] = (nVal >> 24) & 0xFF;
-    arrInteger[1] = (nVal >> 16) & 0xFF;
-    arrInteger[2] = (nVal >> 8) & 0xFF;
-    arrInteger[3] = nVal & 0xFF;
-    f.write((const char *)arrInteger, 4);
+    static char arrInteger[4];
+    f.read(arrInteger, 4);
+    if (!f) {
+        sError = "Could not read. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+    nVal = *reinterpret_cast<uint32_t*>(arrInteger);
+    return true;
 }
 
 // ---------------------------------------------------------------------
 
 void WsjcppObjTree::writeUInt16(std::ofstream &f, uint16_t nVal) {
+    const char *pBuffer = reinterpret_cast<const char *>(&nVal);
+    f.write(pBuffer, 2);
+}
+
+// ---------------------------------------------------------------------
+
+bool WsjcppObjTree::readUInt16(std::ifstream &f, uint16_t &nVal, std::string &sError) {
     // not for multithreading
-    static unsigned char arrShort[2];
-    arrShort[0] = (nVal >> 8) & 0xFF;
-    arrShort[1] = nVal & 0xFF;
-    f.write((const char *)arrShort, 2);
+    static char arrShort[2];
+    f.read(arrShort, 2);
+    if (!f) {
+        sError = "Could not read. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+    nVal = *reinterpret_cast<uint16_t*>(arrShort);
+    return true;
 }
 
 // ---------------------------------------------------------------------
@@ -337,6 +418,28 @@ const char *WsjcppObjTreeNodeString::getData() {
 
 // ---------------------------------------------------------------------
 
+bool WsjcppObjTreeNodeString::readDataPartFromFile(std::ifstream &f, std::string &sError) {
+    uint32_t nStringLen = 0;
+    char arrInteger[4];
+    f.read(arrInteger, 4);
+    if (!f) {
+        sError = "WsjcppObjTreeNodeString. Could not read string len. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+    nStringLen = *reinterpret_cast<uint32_t*>(arrInteger);
+    char *pStr = new char[nStringLen];
+    f.read(pStr, nStringLen);
+    if (!f) {
+        delete pStr;
+        sError = "WsjcppObjTreeNodeString. Could not read string data. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+    m_sValue = std::string(pStr, nStringLen);
+    return true;
+}
+
+// ---------------------------------------------------------------------
+
 std::string WsjcppObjTreeNodeString::toString(const std::string &sIntent) {
     return "string: " + m_sValue;
 }
@@ -372,6 +475,28 @@ int WsjcppObjTreeNodeInteger::getDataSize() {
 const char *WsjcppObjTreeNodeInteger::getData() {
     const char *p = reinterpret_cast<const char *>(&m_nValue);
     return p;
+}
+
+// ---------------------------------------------------------------------
+
+bool WsjcppObjTreeNodeInteger::readDataPartFromFile(std::ifstream &f, std::string &sError) {
+    // size
+    // TODO remove - because  this not need
+    char arrBytes[4];
+    f.read(arrBytes, 4);
+    if (!f) {
+        sError = "WsjcppObjTreeNodeInteger. Could not read string len. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+    // value 
+    f.read(arrBytes, 4);
+    if (!f) {
+        sError = "WsjcppObjTreeNodeInteger. Could not read string len. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+    static_assert(sizeof(uint32_t) == 4, "Expected sizeof(uint32_t) == 4");
+    m_nValue = *reinterpret_cast<uint32_t*>(arrBytes);
+    return true;
 }
 
 // ---------------------------------------------------------------------
@@ -415,6 +540,28 @@ const char *WsjcppObjTreeNodeFloat::getData() {
 
 // ---------------------------------------------------------------------
 
+bool WsjcppObjTreeNodeFloat::readDataPartFromFile(std::ifstream &f, std::string &sError) {
+    static_assert(sizeof(float) == 4, "Expected sizeof(float) == 4");
+    // size
+    // TODO remove - because  this not need
+    char arrBytes[4];
+    f.read(arrBytes, 4);
+    if (!f) {
+        sError = "WsjcppObjTreeNodeInteger. Could not read string len. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+    // value 
+    f.read(arrBytes, 4);
+    if (!f) {
+        sError = "WsjcppObjTreeNodeFloat. Could not read string len. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+    m_nValue = *reinterpret_cast<float*>(arrBytes);
+    return true;
+}
+
+// ---------------------------------------------------------------------
+
 std::string WsjcppObjTreeNodeFloat::toString(const std::string &sIntent) {
     return "float: " + std::to_string(m_nValue);
 }
@@ -450,6 +597,29 @@ int WsjcppObjTreeNodeDouble::getDataSize() {
 
 const char *WsjcppObjTreeNodeDouble::getData() {
     return reinterpret_cast<const char *>(&m_nValue);
+}
+
+// ---------------------------------------------------------------------
+
+bool WsjcppObjTreeNodeDouble::readDataPartFromFile(std::ifstream &f, std::string &sError) {
+    static_assert(sizeof(double) == 8, "Expected sizeof(double) == 8");
+    // size
+    // TODO remove - because  this not need
+    char arrBytes4[4];
+    f.read(arrBytes4, 4);
+    if (!f) {
+        sError = "WsjcppObjTreeNodeInteger. Could not read string len. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+    // value
+    char arrBytes[8];
+    f.read(arrBytes, 8);
+    if (!f) {
+        sError = "WsjcppObjTreeNodeDouble. Could not read string len. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+    m_nValue = *reinterpret_cast<double*>(arrBytes);
+    return true;
 }
 
 // ---------------------------------------------------------------------
