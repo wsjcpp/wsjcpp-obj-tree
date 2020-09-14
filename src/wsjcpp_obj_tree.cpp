@@ -293,6 +293,12 @@ bool WsjcppObjTree::hasNode(WsjcppObjTreeNode *pNode) {
 
 // ---------------------------------------------------------------------
 
+const std::vector<WsjcppObjTreeNode *> &WsjcppObjTree::getAllNodes() {
+    return m_vNodes;
+}
+
+// ---------------------------------------------------------------------
+
 int WsjcppObjTree::getRoots(std::vector<WsjcppObjTreeNode *> &vRoots) {
     int nRet = 0;
     std::vector<WsjcppObjTreeNode *>::iterator it = m_vNodes.begin();
@@ -457,7 +463,7 @@ bool WsjcppObjTreeNodeString::readDataPartFromFile(std::ifstream &f, std::string
     }
     nStringLen = *reinterpret_cast<uint32_t*>(arrInteger);
     char *pStr = new char[nStringLen];
-    
+
     f.read(pStr, nStringLen);
     if (!f) {
         delete[] pStr;

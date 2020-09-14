@@ -4,6 +4,7 @@
 #include <wsjcpp_core.h>
 #include <string>
 #include <map>
+#include <fstream>
 
 // not enum - because need more extendable from different modules
 
@@ -95,6 +96,7 @@ class WsjcppObjTree {
         }
         bool isSupportType(uint16_t );
         bool hasNode(WsjcppObjTreeNode *);
+        const std::vector<WsjcppObjTreeNode *> &getAllNodes();
 
         template<class T, class A>
         int findNodes(const A &val, std::vector<T *> &vFoundNodes) {
