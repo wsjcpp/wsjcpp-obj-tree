@@ -24,8 +24,7 @@ class WsjcppObjTreeNode {
         uint16_t getType();
 
         // virtual zero methods will be deny create basic class
-        virtual int getDataSize() = 0;
-        virtual const char *getData() = 0;
+        virtual bool writeDataPartToFile(std::ofstream &f, std::string &sError) = 0;
         virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) = 0;
 
         virtual std::string toString(const std::string &sIntent = "") = 0;
@@ -177,8 +176,7 @@ class WsjcppObjTreeNodeString : public WsjcppObjTreeNode {
         void setValue(const std::string &sValue);
         
         // WsjcppObjTreeNode
-        virtual int getDataSize() override;
-        virtual const char *getData() override;
+        virtual bool writeDataPartToFile(std::ofstream &f, std::string &sError) override;
         virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) override;
         virtual std::string toString(const std::string &sIntent = "") override;
 
@@ -198,8 +196,7 @@ class WsjcppObjTreeNodeInteger : public WsjcppObjTreeNode {
         void setValue(int32_t nValue);
 
         // WsjcppObjTreeNode
-        virtual int getDataSize() override;
-        virtual const char *getData() override;
+        virtual bool writeDataPartToFile(std::ofstream &f, std::string &sError) override;
         virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) override;
         virtual std::string toString(const std::string &sIntent = "") override;
 
@@ -218,8 +215,7 @@ class WsjcppObjTreeNodeFloat : public WsjcppObjTreeNode {
         void setValue(float nValue);
 
         // WsjcppObjTreeNode
-        virtual int getDataSize() override;
-        virtual const char *getData() override;
+        virtual bool writeDataPartToFile(std::ofstream &f, std::string &sError) override;
         virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) override;
         virtual std::string toString(const std::string &sIntent = "") override;
 
@@ -239,8 +235,7 @@ class WsjcppObjTreeNodeDouble : public WsjcppObjTreeNode {
         void setValue(float nValue);
 
         // WsjcppObjTreeNode
-        virtual int getDataSize() override;
-        virtual const char *getData() override;
+        virtual bool writeDataPartToFile(std::ofstream &f, std::string &sError) override;
         virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) override;
         virtual std::string toString(const std::string &sIntent = "") override;
 

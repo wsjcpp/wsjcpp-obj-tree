@@ -77,22 +77,16 @@ int WsjcppObjTreeNodeBuilding::getNumberOfFloors() {
 
 // ---------------------------------------------------------------------
 
-int WsjcppObjTreeNodeBuilding::getDataSize() {
-    WsjcppLog::throw_err("WsjcppObjTreeNodeBuilding", "::getDataSize() Not implemented");
-    return sizeof(Address);
-}
-
-// ---------------------------------------------------------------------
-
-const char *WsjcppObjTreeNodeBuilding::getData() {
-    WsjcppLog::throw_err("WsjcppObjTreeNodeBuilding", "::getData() Not implemented");
-    return reinterpret_cast<const char *>(&m_value);
+bool WsjcppObjTreeNodeBuilding::writeDataPartToFile(std::ofstream &f, std::string &sError) {
+    sError = "Not implemented";
+    return false;
 }
 
 // ---------------------------------------------------------------------
 
 bool WsjcppObjTreeNodeBuilding::readDataPartFromFile(std::ifstream &f, std::string &sError) {
-    
+    sError = "Not implemented";
+    return false;
 }
 
 // ---------------------------------------------------------------------

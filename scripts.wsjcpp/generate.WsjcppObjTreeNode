@@ -66,8 +66,8 @@ class " class_name " : public WsjcppObjTreeNode {
         void setValue(const " init_class_name " &nValue);
 
         // WsjcppObjTreeNode
-        virtual int getDataSize() override;
-        virtual const char *getData() override;
+        virtual bool writeDataPartToFile(std::ofstream &f, std::string &sError) override;
+        virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) override;
         virtual std::string toString(const std::string &sIntent = \"\") override;
     private:
         " init_class_name " m_value;
@@ -120,16 +120,16 @@ void " class_name "::setValue(const " init_class_name " &nValue) {
 
 // ---------------------------------------------------------------------
 
-int " class_name "::getDataSize() {
-    WsjcppLog::throw_err(\"" class_name "\", \"::getDataSize() Not implemented\");
-    return sizeof(" init_class_name ");
+bool " class_name "::writeDataPartToFile(std::ofstream &f, std::string &sError) {
+    sError = \"" class_name " - writeDataPartToFile not implemented\";
+    return false;
 }
 
 // ---------------------------------------------------------------------
 
-const char *" class_name "::getData() {
-    WsjcppLog::throw_err(\"" class_name "\", \"::getData() Not implemented\");
-    return reinterpret_cast<const char *>(&m_value);
+bool " class_name "::readDataPartFromFile(std::ifstream &f, std::string &sError) {
+    sError = \"" class_name " - readDataPartFromFile not implemented\";
+    return false;
 }
 
 // ---------------------------------------------------------------------
