@@ -155,7 +155,7 @@ bool WsjcppObjTree::readTreeFromFile(const std::string &sFilename, std::string &
         if (!this->readUInt32(f, nParentId, sError)) {
             return false;
         }
-        WsjcppObjTreeNode *pParentNode = nullptr; // TODO find by Id
+        WsjcppObjTreeNode *pParentNode = nullptr;
 
         if (mapTempIdToNode.find(nParentId) != mapTempIdToNode.end()) {
             pParentNode = mapTempIdToNode[nParentId];
