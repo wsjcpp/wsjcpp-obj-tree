@@ -74,6 +74,8 @@ class WsjcppObjTree {
     public:
         WsjcppObjTree();
         ~WsjcppObjTree();
+        void setUserVersionOfTree(uint32_t nUserVersion);
+        uint32_t getUserVersionOfTree();
 
         bool readTreeFromFile(const std::string &sFilename, std::string &sError);
         bool writeTreeToFile(const std::string &sFilename, std::string &sError);
@@ -117,6 +119,7 @@ class WsjcppObjTree {
 
     private:
         std::string TAG;
+        uint32_t m_nUserVersion;
         std::vector<WsjcppObjTreeNode *> m_vNodes;
         uint32_t m_nLastId; // Need for future if will be implemented function of remove nodes
         std::map<uint16_t, IFabricWsjcppObjTreeNode*> m_mapFabricTreeNode;

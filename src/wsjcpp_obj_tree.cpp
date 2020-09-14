@@ -72,7 +72,20 @@ void WsjcppObjTreeNode::setId(uint32_t nId) {
 
 WsjcppObjTree::WsjcppObjTree() {
     m_nLastId = 0;
+    m_nUserVersion = 0;
     TAG = "WsjcppObjTree";
+}
+
+// ---------------------------------------------------------------------
+
+void WsjcppObjTree::setUserVersionOfTree(uint32_t nUserVersion) {
+    m_nUserVersion = nUserVersion;
+}
+
+// ---------------------------------------------------------------------
+
+uint32_t WsjcppObjTree::getUserVersionOfTree() {
+    return m_nUserVersion;
 }
 
 // ---------------------------------------------------------------------
@@ -108,6 +121,11 @@ bool WsjcppObjTree::readTreeFromFile(const std::string &sFilename, std::string &
 
     if (std::string(sExpectedFileHeader,20) != "WSJCPP-OBJ-TREE-FILE") {
         sError = "readTreeFromFile. Expected first 20 bytes of file like this WSJCPP-OBJ-TREE-FILE";
+        return false;
+    }
+
+    // just a user version for usebillity
+    if (!this->readUInt32(f, m_nUserVersion, sError)) {
         return false;
     }
 
@@ -182,7 +200,9 @@ bool WsjcppObjTree::writeTreeToFile(const std::string &sFilename, std::string &s
     static const std::string sFileHeader = "WSJCPP-OBJ-TREE-FILE";
     f.write(sFileHeader.c_str(), sFileHeader.length());
 
-    // m_nLastId
+    // just a user version for usebillity
+    this->writeUInt32(f, m_nUserVersion);
+    
     int nTreeSize = m_vNodes.size();
     this->writeUInt32(f, nTreeSize);
     this->writeUInt32(f, m_nLastId);
@@ -292,7 +312,7 @@ int WsjcppObjTree::getRoots(std::vector<WsjcppObjTreeNode *> &vRoots) {
 
 std::string WsjcppObjTree::toString() { // for printing
     std::string sIntent = "";
-    return toStringRecoursiveChilds(nullptr, sIntent);
+    return "Root (ver: " + std::to_string(m_nUserVersion) + ")\n" + toStringRecoursiveChilds(nullptr, sIntent);
 }
 
 // ---------------------------------------------------------------------

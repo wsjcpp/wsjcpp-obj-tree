@@ -18,6 +18,7 @@ addons:
 script:
   - ./build_simple.sh
   - ./wsjcpp-obj-tree --example -o some.wsjcpp-obj-tree
+  - ./wsjcpp-obj-tree --random 1000 -o random.wsjcpp-obj-tree
   - ./wsjcpp-obj-tree -i some.wsjcpp-obj-tree -o some2.wsjcpp-obj-tree
   - rm some.wsjcpp-obj-tree && rm some2.wsjcpp-obj-tree
   - cd unit-tests.wsjcpp

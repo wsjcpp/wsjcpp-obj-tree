@@ -18,6 +18,7 @@ void UnitTestWriteTree::init() {
 class CompStruct : public WsjcppObjTree {
     public:
         CompStruct() {
+            setUserVersionOfTree(1);
             addSupportType<WsjcppObjTreeNodeString>();
             addSupportType<WsjcppObjTreeNodeInteger>();
             addSupportType<WsjcppObjTreeNodeFloat>();
@@ -73,7 +74,7 @@ bool UnitTestWriteTree::run() {
     int nBufferSize = 0;
     WsjcppCore::readFileToBuffer(sFilename, &pBuffer, nBufferSize);
 
-    compareN(bTestSuccess, "write to file", nBufferSize, 316);
+    compareN(bTestSuccess, "write to file", nBufferSize, 320);
     
     return bTestSuccess;
 }
