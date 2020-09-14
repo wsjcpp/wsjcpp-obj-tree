@@ -65,7 +65,7 @@ bool UnitTestWriteTree::run() {
     }
 
     WsjcppLog::info(TAG, "\n" + comp.toString());
-    std::string sFilename = "./data/tmp/example.obj-tree";
+    std::string sFilename = "./data/tmp/example.wsjcpp-obj-tree";
     std::string sError;
     bool bWrote = comp.writeTreeToFile(sFilename, sError);
     compareB(bTestSuccess, "write to file", bWrote, true);

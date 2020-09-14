@@ -33,7 +33,7 @@ bool UnitTestReadTree::run() {
     // TODO will be chnaged this to keeped files on the disk
     CompStruct comp;
 
-    std::string sFilename = "./data/readtreetest/example1.obj-tree";
+    std::string sFilename = "./data/readtreetest/example1.wsjcpp-obj-tree";
     std::string sError;
     bool bWrote = comp.readTreeFromFile(sFilename, sError);
     compareB(bTestSuccess, "read from file", bWrote, true);
@@ -42,13 +42,26 @@ bool UnitTestReadTree::run() {
     }
 
     WsjcppLog::info(TAG, "\n" + comp.toString());
-        
-    // char *pBuffer = nullptr;
-    // int nBufferSize = 0;
-    // WsjcppCore::readFileToBuffer(sFilename, &pBuffer, nBufferSize);
+    compareN(bTestSuccess, "user version ", comp.getUserVersionOfTree(), 1);
 
-    // compareN(bTestSuccess, "read to file", nBufferSize, 296);
-    
+    std::vector<WsjcppObjTreeNodeString *> vFoundNodes;
+
+    comp.findNodes("PCI_EXPRESS", vFoundNodes);
+
+    compareN(bTestSuccess, "find PCI_EXPRESS", vFoundNodes.size(), 1);
+    if (vFoundNodes.size() == 1) {
+        WsjcppObjTreeNodeString *pNode = vFoundNodes[0];
+        compareN(bTestSuccess, "node id", pNode->getId(), 13);
+        compareN(bTestSuccess, "find PCI_EXPRESS", pNode->getChilds().size(), 1);
+        if (pNode->getChilds().size() == 1) {
+            WsjcppObjTreeNode *pNodeChild_ = pNode->getChilds()[0];
+            compareN(bTestSuccess, "child node type", pNodeChild_->getType(), WSJCPP_OBJ_TREE_NODE_INTEGER);
+            compareN(bTestSuccess, "child node id", pNodeChild_->getId(), 14);
+            compareN(bTestSuccess, "child node parent id (1)", pNode->getId(), pNodeChild_->getParent()->getId());
+            compareN(bTestSuccess, "child node parent id (2)", pNodeChild_->getParent()->getId(), 13);
+        }
+    }
+
     return bTestSuccess;
 }
 
