@@ -39,6 +39,13 @@ class WsjcppObjTreeNodeBuilding : public WsjcppObjTreeNode {
     private:
         Address m_value;
         int m_nNumberOfFloors;
+
+        bool readUInt32(std::ifstream &f, uint32_t &nVal, std::string &sError);
+        bool writeUInt32(std::ofstream &f, uint32_t nVal, std::string &sError);
+
+        bool readString(std::ifstream &f, std::string &nVal, std::string &sError);
+        bool writeString(std::ofstream &f, std::string nVal, std::string &sError);
+        
 };
 
 WSJCPP_OBJ_TREE_CHAIN_DECLARE_INLINE(Address, WsjcppObjTreeNodeBuilding)
