@@ -8,6 +8,9 @@ some2.wsjcpp-obj-tree
 random.wsjcpp-obj-tree
 unit-tests.wsjcpp/data/tmp/*
 
+xcuserdata
+.DS_Store
+
 # Prerequisites
 *.d
 
