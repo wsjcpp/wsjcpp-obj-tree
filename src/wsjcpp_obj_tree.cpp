@@ -99,6 +99,18 @@ bool WsjcppObjTree::readTreeFromFile(const std::string &sFilename, std::string &
     std::ifstream f;
     f.open(sFilename.c_str(), std::ios::in | std::ios::binary);
 
+    char sExpectedFileHeader[20];
+    f.read(sExpectedFileHeader, 20);
+    if (!f) {
+        sError = "readTreeFromFile. Could not read string len. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+
+    if (std::string(sExpectedFileHeader,20) != "WSJCPP-OBJ-TREE-FILE") {
+        sError = "readTreeFromFile. Expected first 20 bytes of file like this WSJCPP-OBJ-TREE-FILE";
+        return false;
+    }
+
     uint32_t nTreeSize = 0;
     if (!this->readUInt32(f, nTreeSize, sError)) {
         return false;
@@ -167,6 +179,8 @@ bool WsjcppObjTree::writeTreeToFile(const std::string &sFilename, std::string &s
         std::cout << "FAILED could not create file to write " << sFilename << std::endl;
         return false;
     }
+    static const std::string sFileHeader = "WSJCPP-OBJ-TREE-FILE";
+    f.write(sFileHeader.c_str(), sFileHeader.length());
 
     // m_nLastId
     int nTreeSize = m_vNodes.size();

@@ -37,6 +37,9 @@ bool UnitTestReadTree::run() {
     std::string sError;
     bool bWrote = comp.readTreeFromFile(sFilename, sError);
     compareB(bTestSuccess, "read from file", bWrote, true);
+    if (!bWrote) {
+        WsjcppLog::err(TAG, sError);
+    }
 
     WsjcppLog::info(TAG, "\n" + comp.toString());
         

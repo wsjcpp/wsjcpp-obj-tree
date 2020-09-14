@@ -61,6 +61,13 @@ int main(int argc, const char* argv[]) {
 
     std::cout << tree.toString();
 
+    std::string sError;
+    tree.writeTreeToFile("some.obj-tree", sError);
+    tree.readTreeFromFile("some.obj-tree", sError);
+
+    std::cout << tree.toString();
+    WsjcppCore::removeFile("some.obj-tree");
+
     return 0;
 }
 

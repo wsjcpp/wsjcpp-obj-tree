@@ -34,6 +34,7 @@ class WsjcppObjTreeNodeBuilding : public WsjcppObjTreeNode {
         // WsjcppObjTreeNode
         virtual int getDataSize() override;
         virtual const char *getData() override;
+        virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) override;
         virtual std::string toString(const std::string &sIntent = "") override;
 
     private:

@@ -91,6 +91,12 @@ const char *WsjcppObjTreeNodeBuilding::getData() {
 
 // ---------------------------------------------------------------------
 
+bool WsjcppObjTreeNodeBuilding::readDataPartFromFile(std::ifstream &f, std::string &sError) {
+    
+}
+
+// ---------------------------------------------------------------------
+
 std::string WsjcppObjTreeNodeBuilding::toString(const std::string &sIntent) {
     return
         "Building: st. " + m_value.getStreetName() + ", " + m_value.getBuildingNumber()

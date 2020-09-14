@@ -73,7 +73,7 @@ bool UnitTestWriteTree::run() {
     int nBufferSize = 0;
     WsjcppCore::readFileToBuffer(sFilename, &pBuffer, nBufferSize);
 
-    compareN(bTestSuccess, "write to file", nBufferSize, 296);
+    compareN(bTestSuccess, "write to file", nBufferSize, 316);
     
     return bTestSuccess;
 }
