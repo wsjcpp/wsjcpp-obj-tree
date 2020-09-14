@@ -457,13 +457,15 @@ bool WsjcppObjTreeNodeString::readDataPartFromFile(std::ifstream &f, std::string
     }
     nStringLen = *reinterpret_cast<uint32_t*>(arrInteger);
     char *pStr = new char[nStringLen];
+    
     f.read(pStr, nStringLen);
     if (!f) {
-        delete pStr;
+        delete[] pStr;
         sError = "WsjcppObjTreeNodeString. Could not read string data. File broken. Can read " + std::to_string(f.gcount());
         return false;
     }
     m_sValue = std::string(pStr, nStringLen);
+    delete[] pStr;
     return true;
 }
 
