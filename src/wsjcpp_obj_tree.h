@@ -1,7 +1,7 @@
 #ifndef WSJCPP_OBJ_TREE_H
 #define WSJCPP_OBJ_TREE_H
 
-#include <wsjcpp_core.h>
+#include "wsjcpp_core.h"
 #include <string>
 #include <map>
 #include <fstream>

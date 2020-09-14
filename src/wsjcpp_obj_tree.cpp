@@ -1,6 +1,6 @@
 
 #include "wsjcpp_obj_tree.h"
-#include <wsjcpp_core.h>
+#include "wsjcpp_core.h"
 #include <algorithm>
 #include <fstream>
 
@@ -203,11 +203,9 @@ bool WsjcppObjTree::writeTreeToFile(const std::string &sFilename, std::string &s
     // just a user version for usebillity
     this->writeUInt32(f, m_nUserVersion);
     
-    int nTreeSize = m_vNodes.size();
+    int nTreeSize = (int) m_vNodes.size();
     this->writeUInt32(f, nTreeSize);
     this->writeUInt32(f, m_nLastId);
-
-    unsigned char arrShort[4];
 
     for (int i = 0; i < nTreeSize; i++) {
         WsjcppObjTreeNode *pNode = m_vNodes[i];
@@ -236,8 +234,8 @@ bool WsjcppObjTree::writeTreeToFile(const std::string &sFilename, std::string &s
 // ---------------------------------------------------------------------
 
 void WsjcppObjTree::clearNodes() {
-    int nSize = m_vNodes.size();
-    for (int i = nSize - 1; i >=0; i--) {
+    unsigned long nSize = m_vNodes.size();
+    for (unsigned long i = nSize - 1; i >=0; i--) {
         delete m_vNodes[i];
     }
     m_vNodes.clear();
@@ -253,8 +251,6 @@ void WsjcppObjTree::addNode(WsjcppObjTreeNode *pParent, WsjcppObjTreeNode *pChil
     if (!this->isSupportType(pChild->getType())) {
         WsjcppLog::throw_err(TAG, "::addNode - Not supported type");
     }
-
-    std::vector<WsjcppObjTreeNode *>::iterator it;
 
     // check that parent node already exists in a list
     if (pParent != nullptr && !this->hasNode(pParent)) {
@@ -370,7 +366,7 @@ std::string WsjcppObjTree::toStringRecoursiveChilds(WsjcppObjTreeNode *pNode, co
     } else {
         vChilds = pNode->getChilds();
     }
-    int nLen = vChilds.size();
+    int nLen = (int)vChilds.size();
     for (int i = 0; i < nLen; i++) {
         bool bLatestChild = (i == nLen-1);
         WsjcppObjTreeNode *pNode = vChilds[i];
@@ -444,7 +440,7 @@ void WsjcppObjTreeNodeString::setValue(const std::string &sValue) {
 // ---------------------------------------------------------------------
 
 bool WsjcppObjTreeNodeString::writeDataPartToFile(std::ofstream &f, std::string &sError) {
-    uint32_t nStringLen = m_sValue.size();
+    uint32_t nStringLen = (uint32_t)m_sValue.size();
     const char *pData = reinterpret_cast<const char *>(&nStringLen);
     f.write(pData, 4); // Write size of string
     f.write(m_sValue.c_str(), nStringLen);
