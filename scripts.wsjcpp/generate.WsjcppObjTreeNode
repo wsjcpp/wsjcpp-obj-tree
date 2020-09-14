@@ -1,0 +1,160 @@
+#!/usr/bin/wsjcpp-safe-scripting
+
+# log_info rootdir
+# log_info script_filename
+
+make_dir "src"
+
+var in_class_name
+set_value in_class_name arg1
+normalize_class_name in_class_name
+
+var class_name
+concat class_name "WsjcppObjTreeNode" in_class_name
+normalize_class_name class_name
+
+var name_of_type
+concat name_of_type "WsjcppObjTreeNode" in_class_name
+convert_CamelCase_to_snake_case name_of_type name_of_type
+to_upper_case name_of_type
+
+var init_class_name
+set_value init_class_name arg2
+
+var id_of_type
+set_value id_of_type arg3
+
+# convert_CamelCase_to_snake_case class_name class_name
+# normalize_class_name class_name
+
+var base_filename
+convert_CamelCase_to_snake_case class_name base_filename
+# log_info base_filename
+
+var filename_cpp
+concat filename_cpp "./src/" base_filename ".cpp"
+
+var filename_h
+concat filename_h "./src/" base_filename ".h"
+
+var ifndef_header
+set_value ifndef_header base_filename
+concat ifndef_header "_H"
+
+to_upper_case ifndef_header
+
+var content_header
+concat content_header "#ifndef " ifndef_header "
+#define " ifndef_header "
+
+#include <wsjcpp_obj_tree.h>
+
+class " init_class_name " {
+    public:
+        " init_class_name "();
+        bool operator==(const " init_class_name "& rhs) const;
+};
+
+static uint16_t " name_of_type " = " id_of_type ";
+
+class " class_name " : public WsjcppObjTreeNode {
+    public:
+        " class_name "(WsjcppObjTree *pTree, const " init_class_name " &nValue = " init_class_name "());
+        static uint16_t staticType() { return " name_of_type "; };
+        
+        const " init_class_name " &getValue();
+        void setValue(const " init_class_name " &nValue);
+
+        // WsjcppObjTreeNode
+        virtual bool writeDataPartToFile(std::ofstream &f, std::string &sError) override;
+        virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) override;
+        virtual std::string toString(const std::string &sIntent = \"\") override;
+    private:
+        " init_class_name " m_value;
+};
+
+WSJCPP_OBJ_TREE_CHAIN_DECLARE_INLINE(" init_class_name ", " class_name ")
+
+#endif // " ifndef_header
+
+
+var content_source
+concat content_source "
+#include \"" base_filename ".h\"
+#include <wsjcpp_core.h>
+#include <wsjcpp_obj_tree.h>
+
+// ---------------------------------------------------------------------
+// " init_class_name "
+
+" init_class_name "::" init_class_name "() {
+    // nothing
+}
+
+// ---------------------------------------------------------------------
+
+bool " init_class_name "::operator==(const " init_class_name "& rhs) const {
+    // todo
+    return false;
+}
+
+// ---------------------------------------------------------------------
+// " class_name "
+
+" class_name "::" class_name "(WsjcppObjTree *pTree, const " init_class_name " &nValue)
+: WsjcppObjTreeNode(pTree, " class_name "::staticType()) {
+    this->setValue(nValue);
+}
+
+// ---------------------------------------------------------------------
+
+const " init_class_name " &" class_name "::getValue() {
+    return m_value;
+}
+
+// ---------------------------------------------------------------------
+
+void " class_name "::setValue(const " init_class_name " &nValue) {
+    m_value = nValue;
+}
+
+// ---------------------------------------------------------------------
+
+bool " class_name "::writeDataPartToFile(std::ofstream &f, std::string &sError) {
+    sError = \"" class_name " - writeDataPartToFile not implemented\";
+    return false;
+}
+
+// ---------------------------------------------------------------------
+
+bool " class_name "::readDataPartFromFile(std::ifstream &f, std::string &sError) {
+    sError = \"" class_name " - readDataPartFromFile not implemented\";
+    return false;
+}
+
+// ---------------------------------------------------------------------
+
+std::string " class_name "::toString(const std::string &sIntent) {
+    return \"" arg1 ": TODO\";
+}
+
+"
+
+var file_source
+concat file_source "src/" filename_cpp
+
+write_file filename_h content_header
+write_file filename_cpp content_source
+
+log_info "
+======
+Generated class:
+    - " class_name "
+Generated files:
+    - " filename_h "
+    - " filename_cpp "
+======
+"
+
+cmakelists_txt_append_wsjcpp filename_h
+cmakelists_txt_append_wsjcpp filename_cpp

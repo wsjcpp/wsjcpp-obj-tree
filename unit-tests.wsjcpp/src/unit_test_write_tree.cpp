@@ -18,6 +18,7 @@ void UnitTestWriteTree::init() {
 class CompStruct : public WsjcppObjTree {
     public:
         CompStruct() {
+            setUserVersionOfTree(1);
             addSupportType<WsjcppObjTreeNodeString>();
             addSupportType<WsjcppObjTreeNodeInteger>();
             addSupportType<WsjcppObjTreeNodeFloat>();
@@ -43,12 +44,16 @@ bool UnitTestWriteTree::run() {
                 .add("frequency")
                     .add(3.2).up()
                 .up()
+            .up()
             .add("GPU_SOCKET")
                 .add(1).up()
+            .up()
             .add("USB-A")
                 .add(4).up()
+            .up()
             .add("PCI")
                 .add(3).up()
+            .up()
             .add("PCI_EXPRESS")
                 .add(1).up()
             .up()
@@ -59,7 +64,8 @@ bool UnitTestWriteTree::run() {
         WsjcppCore::makeDir("./data/tmp");
     }
 
-    std::string sFilename = "./data/tmp/example.obj-tree";
+    WsjcppLog::info(TAG, "\n" + comp.toString());
+    std::string sFilename = "./data/tmp/example.wsjcpp-obj-tree";
     std::string sError;
     bool bWrote = comp.writeTreeToFile(sFilename, sError);
     compareB(bTestSuccess, "write to file", bWrote, true);

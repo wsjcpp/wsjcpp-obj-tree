@@ -11,7 +11,6 @@ WsjcppObjTreeNode::WsjcppObjTreeNode(WsjcppObjTree *pTree, uint16_t nType) {
     m_pTree = pTree;
     m_pParent = nullptr;
     m_nType = nType;
-    // TODO regestry in global factory
 }
 
 // ---------------------------------------------------------------------
@@ -46,6 +45,12 @@ const std::vector<WsjcppObjTreeNode *> &WsjcppObjTreeNode::getChilds() {
 
 // ---------------------------------------------------------------------
 
+bool WsjcppObjTreeNode::hasChilds() {
+    return m_vChilds.size() > 0;
+}
+
+// ---------------------------------------------------------------------
+
 void WsjcppObjTreeNode::setParent(WsjcppObjTreeNode *pParent) {
     m_pParent = pParent;
 }
@@ -67,7 +72,20 @@ void WsjcppObjTreeNode::setId(uint32_t nId) {
 
 WsjcppObjTree::WsjcppObjTree() {
     m_nLastId = 0;
+    m_nUserVersion = 0;
     TAG = "WsjcppObjTree";
+}
+
+// ---------------------------------------------------------------------
+
+void WsjcppObjTree::setUserVersionOfTree(uint32_t nUserVersion) {
+    m_nUserVersion = nUserVersion;
+}
+
+// ---------------------------------------------------------------------
+
+uint32_t WsjcppObjTree::getUserVersionOfTree() {
+    return m_nUserVersion;
 }
 
 // ---------------------------------------------------------------------
@@ -86,8 +104,88 @@ WsjcppObjTree::~WsjcppObjTree() {
 
 bool WsjcppObjTree::readTreeFromFile(const std::string &sFilename, std::string &sError) {
     if (!WsjcppCore::fileExists(sFilename)) {
+        sError = "File not exists";
         return false;
     }
+
+    clearNodes();
+    std::ifstream f;
+    f.open(sFilename.c_str(), std::ios::in | std::ios::binary);
+
+    char sExpectedFileHeader[20];
+    f.read(sExpectedFileHeader, 20);
+    if (!f) {
+        sError = "readTreeFromFile. Could not read string len. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+
+    if (std::string(sExpectedFileHeader,20) != "WSJCPP-OBJ-TREE-FILE") {
+        sError = "readTreeFromFile. Expected first 20 bytes of file like this WSJCPP-OBJ-TREE-FILE";
+        return false;
+    }
+
+    // just a user version for usebillity
+    if (!this->readUInt32(f, m_nUserVersion, sError)) {
+        return false;
+    }
+
+    uint32_t nTreeSize = 0;
+    if (!this->readUInt32(f, nTreeSize, sError)) {
+        return false;
+    }
+
+    if (!this->readUInt32(f, m_nLastId, sError)) {
+        return false;
+    }
+
+    std::map<uint32_t, WsjcppObjTreeNode *> mapTempIdToNode;
+    for (int i = 0; i < nTreeSize; i++) {
+        uint16_t nNodeType = 0;
+        if (!this->readUInt16(f, nNodeType, sError)) {
+            return false;
+        }
+
+        if (m_mapFabricTreeNode.find(nNodeType) == m_mapFabricTreeNode.end()) {
+            sError = "On read file could not found node type: " + std::to_string(nNodeType);
+            return false;
+        }
+
+        // read parent id
+        uint32_t nParentId = 0;
+        if (!this->readUInt32(f, nParentId, sError)) {
+            return false;
+        }
+        WsjcppObjTreeNode *pParentNode = nullptr;
+
+        if (mapTempIdToNode.find(nParentId) != mapTempIdToNode.end()) {
+            pParentNode = mapTempIdToNode[nParentId];
+        }
+
+        // read node id
+        uint32_t nNodeId = 0;
+        if (!this->readUInt32(f, nNodeId, sError)) {
+            return false;
+        }
+        
+
+        if (nNodeId > m_nLastId) {
+            sError = "Node id '" + std::to_string(nNodeId) + "' could not more then last id " + std::to_string(m_nLastId);
+            return false;
+        }
+
+        WsjcppObjTreeNode *pNode = m_mapFabricTreeNode[nNodeType]->create();
+        pNode->setId(nNodeId);
+        pNode->setParent(pParentNode);
+        if (pParentNode != nullptr) {
+            pParentNode->addChild(pNode);
+        }
+        if (!pNode->readDataPartFromFile(f, sError)) {
+            return false;
+        }
+        mapTempIdToNode[nNodeId] = pNode;
+        m_vNodes.push_back(pNode);
+    }
+    f.close();
     return true;
 }
 
@@ -99,8 +197,12 @@ bool WsjcppObjTree::writeTreeToFile(const std::string &sFilename, std::string &s
         std::cout << "FAILED could not create file to write " << sFilename << std::endl;
         return false;
     }
+    static const std::string sFileHeader = "WSJCPP-OBJ-TREE-FILE";
+    f.write(sFileHeader.c_str(), sFileHeader.length());
 
-    // m_nLastId
+    // just a user version for usebillity
+    this->writeUInt32(f, m_nUserVersion);
+    
     int nTreeSize = m_vNodes.size();
     this->writeUInt32(f, nTreeSize);
     this->writeUInt32(f, m_nLastId);
@@ -123,12 +225,9 @@ bool WsjcppObjTree::writeTreeToFile(const std::string &sFilename, std::string &s
         // write id
         this->writeUInt32(f, pNode->getId());
 
-        // write data size
-        int nDataSize = pNode->getDataSize();
-        this->writeUInt32(f, nDataSize);
-
-        // write data
-        f.write(pNode->getData(), nDataSize);
+        if (!pNode->writeDataPartToFile(f, sError)) {
+            return false;
+        }
     }
     f.close();
     return true;
@@ -194,25 +293,96 @@ bool WsjcppObjTree::hasNode(WsjcppObjTreeNode *pNode) {
 
 // ---------------------------------------------------------------------
 
+const std::vector<WsjcppObjTreeNode *> &WsjcppObjTree::getAllNodes() {
+    return m_vNodes;
+}
+
+// ---------------------------------------------------------------------
+
+int WsjcppObjTree::getRoots(std::vector<WsjcppObjTreeNode *> &vRoots) {
+    int nRet = 0;
+    std::vector<WsjcppObjTreeNode *>::iterator it = m_vNodes.begin();
+    for (it = m_vNodes.begin(); it != m_vNodes.end(); ++it) {
+        if ((*it)->getParent() == nullptr) {
+            vRoots.push_back(*it);
+            nRet++;
+        }
+    }
+    return nRet;
+}
+
+// ---------------------------------------------------------------------
+
+std::string WsjcppObjTree::toString() { // for printing
+    std::string sIntent = "";
+    return "Root (ver: " + std::to_string(m_nUserVersion) + ")\n" + toStringRecoursiveChilds(nullptr, sIntent);
+}
+
+// ---------------------------------------------------------------------
+
 void WsjcppObjTree::writeUInt32(std::ofstream &f, uint32_t nVal) {
+    const char *pBuffer = reinterpret_cast<const char *>(&nVal);
+    f.write(pBuffer, 4);
+}
+
+// ---------------------------------------------------------------------
+
+bool WsjcppObjTree::readUInt32(std::ifstream &f, uint32_t &nVal, std::string &sError) {
     // not for multithreading
-    // TODO redesign to reinterpret_cast<const char *>(&m_nValue);
-    static unsigned char arrInteger[4];
-    arrInteger[0] = (nVal >> 24) & 0xFF;
-    arrInteger[1] = (nVal >> 16) & 0xFF;
-    arrInteger[2] = (nVal >> 8) & 0xFF;
-    arrInteger[3] = nVal & 0xFF;
-    f.write((const char *)arrInteger, 4);
+    static char arrInteger[4];
+    f.read(arrInteger, 4);
+    if (!f) {
+        sError = "Could not read. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+    nVal = *reinterpret_cast<uint32_t*>(arrInteger);
+    return true;
 }
 
 // ---------------------------------------------------------------------
 
 void WsjcppObjTree::writeUInt16(std::ofstream &f, uint16_t nVal) {
+    const char *pBuffer = reinterpret_cast<const char *>(&nVal);
+    f.write(pBuffer, 2);
+}
+
+// ---------------------------------------------------------------------
+
+bool WsjcppObjTree::readUInt16(std::ifstream &f, uint16_t &nVal, std::string &sError) {
     // not for multithreading
-    static unsigned char arrShort[2];
-    arrShort[0] = (nVal >> 8) & 0xFF;
-    arrShort[1] = nVal & 0xFF;
-    f.write((const char *)arrShort, 2);
+    static char arrShort[2];
+    f.read(arrShort, 2);
+    if (!f) {
+        sError = "Could not read. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+    nVal = *reinterpret_cast<uint16_t*>(arrShort);
+    return true;
+}
+
+// ---------------------------------------------------------------------
+
+std::string WsjcppObjTree::toStringRecoursiveChilds(WsjcppObjTreeNode *pNode, const std::string &sIntent) {
+    std::string sRet;
+    std::vector<WsjcppObjTreeNode *> vChilds;
+    if (pNode == nullptr) {
+        getRoots(vChilds);
+    } else {
+        vChilds = pNode->getChilds();
+    }
+    int nLen = vChilds.size();
+    for (int i = 0; i < nLen; i++) {
+        bool bLatestChild = (i == nLen-1);
+        WsjcppObjTreeNode *pNode = vChilds[i];
+        sRet += sIntent;
+        sRet += bLatestChild ? "└─ " : "├─ ";
+        std::string sIntentAppend = bLatestChild ? "   " : "│  ";
+        sRet += pNode->toString(sIntent + sIntentAppend) + "\n";
+        if (pNode->hasChilds()) {
+            sRet += toStringRecoursiveChilds(pNode, sIntent + sIntentAppend);
+        }
+    }
+    return sRet;
 }
 
 // ---------------------------------------------------------------------
@@ -273,14 +443,42 @@ void WsjcppObjTreeNodeString::setValue(const std::string &sValue) {
 
 // ---------------------------------------------------------------------
 
-int WsjcppObjTreeNodeString::getDataSize() {
-    return m_sValue.size();
+bool WsjcppObjTreeNodeString::writeDataPartToFile(std::ofstream &f, std::string &sError) {
+    uint32_t nStringLen = m_sValue.size();
+    const char *pData = reinterpret_cast<const char *>(&nStringLen);
+    f.write(pData, 4); // Write size of string
+    f.write(m_sValue.c_str(), nStringLen);
+    return true;
+}; 
+
+// ---------------------------------------------------------------------
+
+bool WsjcppObjTreeNodeString::readDataPartFromFile(std::ifstream &f, std::string &sError) {
+    uint32_t nStringLen = 0;
+    char arrInteger[4];
+    f.read(arrInteger, 4);
+    if (!f) {
+        sError = "WsjcppObjTreeNodeString. Could not read string len. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+    nStringLen = *reinterpret_cast<uint32_t*>(arrInteger);
+    char *pStr = new char[nStringLen];
+
+    f.read(pStr, nStringLen);
+    if (!f) {
+        delete[] pStr;
+        sError = "WsjcppObjTreeNodeString. Could not read string data. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+    m_sValue = std::string(pStr, nStringLen);
+    delete[] pStr;
+    return true;
 }
 
 // ---------------------------------------------------------------------
 
-const char *WsjcppObjTreeNodeString::getData() {
-    return m_sValue.c_str();
+std::string WsjcppObjTreeNodeString::toString(const std::string &sIntent) {
+    return "string: " + m_sValue;
 }
 
 // ---------------------------------------------------------------------
@@ -305,15 +503,32 @@ void WsjcppObjTreeNodeInteger::setValue(int32_t nValue) {
 
 // ---------------------------------------------------------------------
 
-int WsjcppObjTreeNodeInteger::getDataSize() {
-    return sizeof(uint32_t);
+bool WsjcppObjTreeNodeInteger::writeDataPartToFile(std::ofstream &f, std::string &sError) {
+    static_assert(sizeof(uint32_t) == 4, "Expected sizeof(uint32_t) == 4");
+    const char *pData = reinterpret_cast<const char *>(&m_nValue);
+    f.write(pData, 4);
+    return true;
+}; 
+
+// ---------------------------------------------------------------------
+
+bool WsjcppObjTreeNodeInteger::readDataPartFromFile(std::ifstream &f, std::string &sError) {
+    // value 
+    char arrBytes[4];
+    f.read(arrBytes, 4);
+    if (!f) {
+        sError = "WsjcppObjTreeNodeInteger. Could not read string len. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+    static_assert(sizeof(uint32_t) == 4, "Expected sizeof(uint32_t) == 4");
+    m_nValue = *reinterpret_cast<uint32_t*>(arrBytes);
+    return true;
 }
 
 // ---------------------------------------------------------------------
 
-const char *WsjcppObjTreeNodeInteger::getData() {
-    const char *p = reinterpret_cast<const char *>(&m_nValue);
-    return p;
+std::string WsjcppObjTreeNodeInteger::toString(const std::string &sIntent) {
+    return "int: " + std::to_string(m_nValue);
 }
 
 // ---------------------------------------------------------------------
@@ -338,17 +553,33 @@ void WsjcppObjTreeNodeFloat::setValue(float nValue) {
 
 // ---------------------------------------------------------------------
 
-int WsjcppObjTreeNodeFloat::getDataSize() {
+bool WsjcppObjTreeNodeFloat::writeDataPartToFile(std::ofstream &f, std::string &sError) {
     static_assert(sizeof(float) == 4, "Expected sizeof(float) == 4");
-    return sizeof(float);
+    const char *pData = reinterpret_cast<const char *>(&m_nValue);
+    f.write(pData, 4);
+    return true;
+}; 
+
+// ---------------------------------------------------------------------
+
+bool WsjcppObjTreeNodeFloat::readDataPartFromFile(std::ifstream &f, std::string &sError) {
+    static_assert(sizeof(float) == 4, "Expected sizeof(float) == 4");
+    // value 
+    char arrBytes[4];
+    f.read(arrBytes, 4);
+    if (!f) {
+        sError = "WsjcppObjTreeNodeFloat. Could not read string len. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+    m_nValue = *reinterpret_cast<float*>(arrBytes);
+    return true;
 }
 
 // ---------------------------------------------------------------------
 
-const char *WsjcppObjTreeNodeFloat::getData() {
-    return reinterpret_cast<const char *>(&m_nValue);
+std::string WsjcppObjTreeNodeFloat::toString(const std::string &sIntent) {
+    return "float: " + std::to_string(m_nValue);
 }
-
 
 // ---------------------------------------------------------------------
 // WsjcppObjTreeNodeDouble
@@ -372,14 +603,30 @@ void WsjcppObjTreeNodeDouble::setValue(float nValue) {
 
 // ---------------------------------------------------------------------
 
-int WsjcppObjTreeNodeDouble::getDataSize() {
+bool WsjcppObjTreeNodeDouble::writeDataPartToFile(std::ofstream &f, std::string &sError) {
     static_assert(sizeof(double) == 8, "Expected sizeof(double) == 8");
-    return sizeof(double);
+    const char *pData = reinterpret_cast<const char *>(&m_nValue);
+    f.write(pData, 8);
+    return true;
 }
 
 // ---------------------------------------------------------------------
 
-const char *WsjcppObjTreeNodeDouble::getData() {
-    return reinterpret_cast<const char *>(&m_nValue);
+bool WsjcppObjTreeNodeDouble::readDataPartFromFile(std::ifstream &f, std::string &sError) {
+    static_assert(sizeof(double) == 8, "Expected sizeof(double) == 8");
+    // value
+    char arrBytes[8];
+    f.read(arrBytes, 8);
+    if (!f) {
+        sError = "WsjcppObjTreeNodeDouble. Could not read string len. File broken. Can read " + std::to_string(f.gcount());
+        return false;
+    }
+    m_nValue = *reinterpret_cast<double*>(arrBytes);
+    return true;
 }
 
+// ---------------------------------------------------------------------
+
+std::string WsjcppObjTreeNodeDouble::toString(const std::string &sIntent) {
+    return "double: " + std::to_string(m_nValue);
+}

@@ -4,6 +4,7 @@
 #include <wsjcpp_core.h>
 #include <string>
 #include <map>
+#include <fstream>
 
 // not enum - because need more extendable from different modules
 
@@ -24,12 +25,15 @@ class WsjcppObjTreeNode {
         uint16_t getType();
 
         // virtual zero methods will be deny create basic class
-        virtual int getDataSize() = 0;
-        virtual const char *getData() = 0;
+        virtual bool writeDataPartToFile(std::ofstream &f, std::string &sError) = 0;
+        virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) = 0;
+
+        virtual std::string toString(const std::string &sIntent = "") = 0;
 
         WsjcppObjTreeNode *getParent();
         uint32_t getId();
         const std::vector<WsjcppObjTreeNode *> &getChilds();
+        bool hasChilds();
 
     protected:
         void setParent(WsjcppObjTreeNode *pParent);
@@ -39,9 +43,9 @@ class WsjcppObjTreeNode {
     private:
         WsjcppObjTree *m_pTree;
         WsjcppObjTreeNode *m_pParent;
-        uint32_t m_nId;
+        uint32_t m_nId; // it uniq identified node in a list
         std::vector<WsjcppObjTreeNode *> m_vChilds;
-        uint16_t m_nType;  
+        uint16_t m_nType;
 };
 
 class IFabricWsjcppObjTreeNode {
@@ -70,6 +74,8 @@ class WsjcppObjTree {
     public:
         WsjcppObjTree();
         ~WsjcppObjTree();
+        void setUserVersionOfTree(uint32_t nUserVersion);
+        uint32_t getUserVersionOfTree();
 
         bool readTreeFromFile(const std::string &sFilename, std::string &sError);
         bool writeTreeToFile(const std::string &sFilename, std::string &sError);
@@ -90,6 +96,7 @@ class WsjcppObjTree {
         }
         bool isSupportType(uint16_t );
         bool hasNode(WsjcppObjTreeNode *);
+        const std::vector<WsjcppObjTreeNode *> &getAllNodes();
 
         template<class T, class A>
         int findNodes(const A &val, std::vector<T *> &vFoundNodes) {
@@ -107,15 +114,24 @@ class WsjcppObjTree {
             }
             return nRet;
         };
-        
+
+        int getRoots(std::vector<WsjcppObjTreeNode *> &vRoots);
+        std::string toString(); // for printing
+
     private:
         std::string TAG;
+        uint32_t m_nUserVersion;
         std::vector<WsjcppObjTreeNode *> m_vNodes;
-        int m_nLastId;
+        uint32_t m_nLastId; // Need for future if will be implemented function of remove nodes
         std::map<uint16_t, IFabricWsjcppObjTreeNode*> m_mapFabricTreeNode;
 
         void writeUInt32(std::ofstream &f, uint32_t nVal);
+        bool readUInt32(std::ifstream &f, uint32_t &nVal, std::string &sError);
+
         void writeUInt16(std::ofstream &f, uint16_t nVal);
+        bool readUInt16(std::ifstream &f, uint16_t &nVal, std::string &sError);
+
+        std::string toStringRecoursiveChilds(WsjcppObjTreeNode *pNode, const std::string &sIntent);
 };
 
 class WsjcppObjTreeChainDeclare {
@@ -161,9 +177,10 @@ class WsjcppObjTreeNodeString : public WsjcppObjTreeNode {
         std::string getValue();
         void setValue(const std::string &sValue);
         
-        // TreeNode
-        virtual int getDataSize() override;
-        virtual const char *getData() override;
+        // WsjcppObjTreeNode
+        virtual bool writeDataPartToFile(std::ofstream &f, std::string &sError) override;
+        virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) override;
+        virtual std::string toString(const std::string &sIntent = "") override;
 
     private:
         std::string m_sValue;
@@ -181,8 +198,9 @@ class WsjcppObjTreeNodeInteger : public WsjcppObjTreeNode {
         void setValue(int32_t nValue);
 
         // WsjcppObjTreeNode
-        virtual int getDataSize() override;
-        virtual const char *getData() override;
+        virtual bool writeDataPartToFile(std::ofstream &f, std::string &sError) override;
+        virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) override;
+        virtual std::string toString(const std::string &sIntent = "") override;
 
     private:
         int32_t m_nValue;
@@ -198,9 +216,10 @@ class WsjcppObjTreeNodeFloat : public WsjcppObjTreeNode {
         float getValue();
         void setValue(float nValue);
 
-        // TreeNode
-        virtual int getDataSize() override;
-        virtual const char *getData() override;
+        // WsjcppObjTreeNode
+        virtual bool writeDataPartToFile(std::ofstream &f, std::string &sError) override;
+        virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) override;
+        virtual std::string toString(const std::string &sIntent = "") override;
 
     private:
         float m_nValue;
@@ -217,9 +236,10 @@ class WsjcppObjTreeNodeDouble : public WsjcppObjTreeNode {
         float getValue();
         void setValue(float nValue);
 
-        // TreeNode
-        virtual int getDataSize() override;
-        virtual const char *getData() override;
+        // WsjcppObjTreeNode
+        virtual bool writeDataPartToFile(std::ofstream &f, std::string &sError) override;
+        virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) override;
+        virtual std::string toString(const std::string &sIntent = "") override;
 
     private:
         double m_nValue;

@@ -3,6 +3,10 @@ tmp/*
 wsjcpp-obj-tree
 .logs/*
 .vscode/*
+some.wsjcpp-obj-tree
+some2.wsjcpp-obj-tree
+random.wsjcpp-obj-tree
+unit-tests.wsjcpp/data/tmp/*
 
 # Prerequisites
 *.d

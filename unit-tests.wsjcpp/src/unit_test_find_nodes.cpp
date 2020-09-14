@@ -70,7 +70,6 @@ bool UnitTestFindNodes::run() {
             compareB(bTestSuccess, "'frequency' parent of the child", pNode2->getParent() == pNode, true);
             compareN(bTestSuccess, "'frequency' child type", pNode2->getType(), WSJCPP_OBJ_TREE_NODE_DOUBLE);
             WsjcppObjTreeNodeDouble *pDouble = (WsjcppObjTreeNodeDouble *)pNode2;
-            compareN(bTestSuccess, "'frequency' child data size", pDouble->getDataSize(), 8);
             compareS(bTestSuccess, "'frequency' child value", std::to_string(pDouble->getValue()), std::to_string(3.2));
         }
     }
