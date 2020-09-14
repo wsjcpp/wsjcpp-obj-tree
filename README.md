@@ -29,6 +29,86 @@ or download and include sources to your project:
 * src/wsjcpp_obj_tree.h
 * src/wsjcpp_obj_tree.cpp
 
+### Build test app
+
+Please install first: g++ cmake pkg-config
+
+Build:
+``` bash
+$ ./build_simple.sh
+```
+
+Run help:
+``` bash
+$ ./wsjcpp-obj-tree --help
+
+  Usage: ./wsjcpp-obj-tree [OPTIONS]
+  Options: 
+    --help | -h         help
+  Input or source data can be (only one): 
+    --input <file> | -i <file>     input binary file with tree
+    --random N | -r N              generate random data (more than 0 and less than 1000000)
+    --example | -e                 hardcoded example
+  Output data can be (only one): 
+    --output <file> | -o <file>    output binary file for tree
+    --print | -p                   output binary file for tree
+
+  Command examples:
+    Print example of the tree: 
+        './wsjcpp-obj-tree -e -p'
+    Print random tree: 
+        './wsjcpp-obj-tree -r 20 -p'
+    Output example of the tree to file: 
+        './wsjcpp-obj-tree -e -o some.wsjcpp-obj-tree'
+    Input from file and output to file: 
+        './wsjcpp-obj-tree -i some.wsjcpp-obj-tree -o some2.wsjcpp-obj-tree'
+```
+
+Print example tree
+``` bash
+% ./wsjcpp-obj-tree -e -p 
+Root (ver: 1)
+├─ Building: st. Morpheus, 1/35a
+│  number-of-floors: 5
+└─ string: Motherboard
+   ├─ string: CPU_SOCKET
+   │  ├─ string: count
+   │  │  └─ int: 1
+   │  └─ string: frequency
+   │     └─ double: 3.200000
+   ├─ string: GPU_SOCKET
+   │  └─ int: 1
+   ├─ string: USB-A
+   │  └─ int: 4
+   ├─ string: PCI
+   │  └─ int: 3
+   └─ string: PCI_EXPRESS
+      └─ int: 1
+Printed. Time elapsed 0ms
+```
+
+### Build and run unit-tests
+
+``` bash
+$ cd unit-tests.wsjcpp
+$ ./build_simple.sh
+$ ./unit-tests
+2020-09-14 21:39:37.040, 0x0x110c9adc0 [INFO] UnitTests: All tests count 4
+2020-09-14 21:39:37.041, 0x0x110c9adc0 [INFO] UnitTests: Run test UnitTestAddNode
+2020-09-14 21:39:37.043, 0x0x110c9adc0 [OK] UnitTestAddNode: Test passed
+2020-09-14 21:39:37.043, 0x0x110c9adc0 [INFO] UnitTests: Run test UnitTestWriteTree
+2020-09-14 21:39:37.043, 0x0x110c9adc0 [INFO] UnitTestWriteTree: 
+...
+2020-09-14 21:39:37.044, 0x0x110c9adc0 [OK] UnitTestWriteTree: Test passed
+2020-09-14 21:39:37.044, 0x0x110c9adc0 [INFO] UnitTests: Run test UnitTestFindNodes
+2020-09-14 21:39:37.044, 0x0x110c9adc0 [OK] UnitTestFindNodes: Test passed
+2020-09-14 21:39:37.045, 0x0x110c9adc0 [INFO] UnitTests: Run test UnitTestReadTree
+2020-09-14 21:39:37.045, 0x0x110c9adc0 [INFO] UnitTestReadTree: 
+...
+2020-09-14 21:39:37.045, 0x0x110c9adc0 [OK] UnitTestReadTree: Test passed
+2020-09-14 21:39:37.045, 0x0x110c9adc0 [INFO] UnitTests: Passed tests 4 / 4
+```
+
 ## Examples
 
 ### Define your tree example
@@ -53,6 +133,9 @@ WsjcppObjTreeChainDeclare chain(&comp);
 // chain.add("111")
 
 ```
+
+
+
 
 ### Define your node container
 
@@ -106,8 +189,8 @@ class WsjcppObjTreeNodeBuilding : public WsjcppObjTreeNode {
         int getNumberOfFloors();
 
         // WsjcppObjTreeNode
-        virtual int getDataSize() override;
-        virtual const char *getData() override;
+        virtual bool writeDataPartToFile(std::ofstream &f, std::string &sError) override;
+        virtual bool readDataPartFromFile(std::ifstream &f, std::string &sError) override;
         virtual std::string toString(const std::string &sIntent = "") override;
 
     private:
@@ -201,16 +284,16 @@ int WsjcppObjTreeNodeBuilding::getNumberOfFloors() {
 
 // ---------------------------------------------------------------------
 
-int WsjcppObjTreeNodeBuilding::getDataSize() {
-    WsjcppLog::throw_err("WsjcppObjTreeNodeBuilding", "::getDataSize() Not implemented");
-    return sizeof(Address);
+bool WsjcppObjTreeNodeBuilding::writeDataPartToFile(std::ofstream &f, std::string &sError) {
+    sError = "WsjcppObjTreeNodeBuilding Not implemented";
+    return false;
 }
 
 // ---------------------------------------------------------------------
 
-const char *WsjcppObjTreeNodeBuilding::getData() {
-    WsjcppLog::throw_err("WsjcppObjTreeNodeBuilding", "::getData() Not implemented");
-    return reinterpret_cast<const char *>(&m_value);
+bool WsjcppObjTreeNodeBuilding::readDataPartFromFile(std::ifstream &f, std::string &sError) {
+    sError = "WsjcppObjTreeNodeBuilding Not implemented";
+    return false;
 }
 
 // ---------------------------------------------------------------------
