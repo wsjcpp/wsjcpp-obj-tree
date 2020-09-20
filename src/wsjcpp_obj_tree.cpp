@@ -373,13 +373,13 @@ std::string WsjcppObjTree::toStringRecoursiveChilds(WsjcppObjTreeNode *pNode, co
     int nLen = vChilds.size();
     for (int i = 0; i < nLen; i++) {
         bool bLatestChild = (i == nLen-1);
-        WsjcppObjTreeNode *pNode = vChilds[i];
+        WsjcppObjTreeNode *pNode_ = vChilds[i];
         sRet += sIntent;
         sRet += bLatestChild ? "└─ " : "├─ ";
         std::string sIntentAppend = bLatestChild ? "   " : "│  ";
-        sRet += pNode->toString(sIntent + sIntentAppend) + "\n";
-        if (pNode->hasChilds()) {
-            sRet += toStringRecoursiveChilds(pNode, sIntent + sIntentAppend);
+        sRet += pNode_->toString(sIntent + sIntentAppend) + "\n";
+        if (pNode_->hasChilds()) {
+            sRet += toStringRecoursiveChilds(pNode_, sIntent + sIntentAppend);
         }
     }
     return sRet;
