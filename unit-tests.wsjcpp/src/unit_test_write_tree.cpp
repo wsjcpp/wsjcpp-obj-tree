@@ -1,19 +1,10 @@
-#include "unit_test_write_tree.h"
+#include <wsjcpp_unit_tests.h>
 #include <vector>
 #include <wsjcpp_core.h>
 #include <wsjcpp_obj_tree.h>
 
-REGISTRY_WSJCPP_UNIT_TEST(UnitTestWriteTree)
-
-UnitTestWriteTree::UnitTestWriteTree()
-    : WsjcppUnitTestBase("UnitTestWriteTree") {
-}
-
 // ---------------------------------------------------------------------
-
-void UnitTestWriteTree::init() {
-    // nothing
-}
+// CompStruct
 
 class CompStruct : public WsjcppObjTree {
     public:
@@ -27,9 +18,32 @@ class CompStruct : public WsjcppObjTree {
 };
 
 // ---------------------------------------------------------------------
+// UnitTestWriteTree
 
-bool UnitTestWriteTree::run() {
-    bool bTestSuccess = true;
+class UnitTestWriteTree : public WsjcppUnitTestBase {
+    public:
+        UnitTestWriteTree();
+        virtual bool doBeforeTest() override;
+        virtual void executeTest() override;
+        virtual bool doAfterTest() override;
+};
+
+REGISTRY_WSJCPP_UNIT_TEST(UnitTestWriteTree)
+
+UnitTestWriteTree::UnitTestWriteTree()
+    : WsjcppUnitTestBase("UnitTestWriteTree") {
+}
+
+// ---------------------------------------------------------------------
+
+bool UnitTestWriteTree::doBeforeTest() {
+    // nothing
+    return true;
+}
+
+// ---------------------------------------------------------------------
+
+void UnitTestWriteTree::executeTest() {
 
     CompStruct comp;
 
@@ -68,14 +82,18 @@ bool UnitTestWriteTree::run() {
     std::string sFilename = "./data/tmp/example.wsjcpp-obj-tree";
     std::string sError;
     bool bWrote = comp.writeTreeToFile(sFilename, sError);
-    compareB(bTestSuccess, "write to file", bWrote, true);
+    compare("write to file", bWrote, true);
 
     char *pBuffer = nullptr;
     int nBufferSize = 0;
     WsjcppCore::readFileToBuffer(sFilename, &pBuffer, nBufferSize);
 
-    compareN(bTestSuccess, "write to file", nBufferSize, 296);
-    
-    return bTestSuccess;
+    compare("write to file", nBufferSize, 296);
 }
 
+// ---------------------------------------------------------------------
+
+bool UnitTestWriteTree::doAfterTest() {
+    // nothing
+    return true;
+}

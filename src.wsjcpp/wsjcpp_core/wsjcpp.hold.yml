@@ -3,7 +3,7 @@ cmake_cxx_standard: 11
 cmake_minimum_required: 3.0
 
 name: wsjcpp-core
-version: v0.1.7
+version: v0.2.1
 description: Basic Utils for wsjcpp
 issues: https://github.com/wsjcpp/wsjcpp-core/issues
 repositories:
@@ -33,15 +33,12 @@ distribution:
   - source-file: "src/wsjcpp_unit_tests_main.cpp"
     target-file: "wsjcpp_unit_tests_main.cpp"
     type: "unit-tests"
-  - source-file: "scripts.wsjcpp/generate.Class"
-    target-file: "generate.Class"
+  - source-file: "scripts.wsjcpp/generate.WsjcppUnitTest.wsjcpp-script"
+    target-file: "generate.WsjcppUnitTest.wsjcpp-script"
     type: "safe-scripting-generate"
-  - source-file: "src/wsjcpp_resources_manager.h"
-    target-file: "wsjcpp_resources_manager.h"
-    type: "source-code"
-  - source-file: "src/wsjcpp_resources_manager.cpp"
-    target-file: "wsjcpp_resources_manager.cpp"
-    type: "source-code"
+  - source-file: "scripts.wsjcpp/generate.Class.wsjcpp-script"
+    target-file: "generate.Class.wsjcpp-script"
+    type: "safe-scripting-generate"
 
 unit-tests:
   cases:
@@ -79,3 +76,9 @@ unit-tests:
       description: "Test basic resources"
     - name: "ListOfDirs"
       description: "Check list of directories"
+    - name: "FilePermissions"
+      description: ""
+    - name: "StringPadding"
+      description: ""
+    - name: "DateTimeFormat"
+      description: ""

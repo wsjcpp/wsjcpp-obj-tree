@@ -55,7 +55,7 @@ class CustomTree : public WsjcppObjTree {
         }
 
         void randomTree(int nSize) {
-            long nTime = WsjcppCore::currentTime_milliseconds();
+            long nTime = WsjcppCore::getCurrentTimeInMilliseconds();
             std::cout << "Starting generate random tree with " << nSize << " nodes..." << std::endl;
             WsjcppCore::initRandom();
             long nTimeStep = nTime;
@@ -86,21 +86,21 @@ class CustomTree : public WsjcppObjTree {
                     pNode->setNumberOfFloors(rand() % 100);
                     addNode(pParentNode, pNode);
                 }
-                if (WsjcppCore::currentTime_milliseconds() - nTimeStep > 3000) {
-                    long nTimeElapsed = WsjcppCore::currentTime_milliseconds() - nTime;
+                if (WsjcppCore::getCurrentTimeInMilliseconds() - nTimeStep > 3000) {
+                    long nTimeElapsed = WsjcppCore::getCurrentTimeInMilliseconds() - nTime;
                     long nTimeLeft = (nTimeElapsed * (nSize - i)) / i;
                     int nProcents = i*100/nSize;
                     std::cout 
                         << "Generated (" << nProcents << "%) "
                         << i << "/" << nSize << " nodes."
-                        << " Time elapsed: " << (WsjcppCore::currentTime_milliseconds() - nTime) << "ms. "
+                        << " Time elapsed: " << (WsjcppCore::getCurrentTimeInMilliseconds() - nTime) << "ms. "
                         << " Time left until completion " << nTimeLeft << "ms"
                         << std::endl;
 
-                    nTimeStep = WsjcppCore::currentTime_milliseconds();
+                    nTimeStep = WsjcppCore::getCurrentTimeInMilliseconds();
                 }
             }
-            nTime = WsjcppCore::currentTime_milliseconds() - nTime;
+            nTime = WsjcppCore::getCurrentTimeInMilliseconds() - nTime;
             std::cout << "Finished. Time elapsed " << nTime << "ms" << std::endl;
         }
 
@@ -227,7 +227,7 @@ int main(int argc, const char* argv[]) {
     std::string sError;
     CustomTree tree;
     
-    long nTime = WsjcppCore::currentTime_milliseconds();
+    long nTime = WsjcppCore::getCurrentTimeInMilliseconds();
     switch(nInputDefined) {
         case 1: // input file
             std::cout << "Reading file... " << sInputFile << std::endl;
@@ -237,7 +237,7 @@ int main(int argc, const char* argv[]) {
                     << std::endl;
                 return -1;
             }
-            nTime = WsjcppCore::currentTime_milliseconds() - nTime;
+            nTime = WsjcppCore::getCurrentTimeInMilliseconds() - nTime;
             std::cout << "Readed. Time elapsed " << nTime << "ms" << std::endl;
             break;
         case 2: // random
@@ -248,7 +248,7 @@ int main(int argc, const char* argv[]) {
             break;
     }
     
-    nTime = WsjcppCore::currentTime_milliseconds();
+    nTime = WsjcppCore::getCurrentTimeInMilliseconds();
     switch(nOutputDefined) {
         case 1: 
             std::cout << "Writing file... " << sOutputFile << std::endl;
@@ -258,12 +258,12 @@ int main(int argc, const char* argv[]) {
                     << std::endl;
                 return -1;
             }
-            nTime = WsjcppCore::currentTime_milliseconds() - nTime;
+            nTime = WsjcppCore::getCurrentTimeInMilliseconds() - nTime;
             std::cout << "Wrote. Time elapsed " << nTime << "ms" << std::endl;
             break;
         case 2:
             std::cout << tree.toString();
-            nTime = WsjcppCore::currentTime_milliseconds() - nTime;
+            nTime = WsjcppCore::getCurrentTimeInMilliseconds() - nTime;
             std::cout << "Printed. Time elapsed " << nTime << "ms" << std::endl;
             break;
     }

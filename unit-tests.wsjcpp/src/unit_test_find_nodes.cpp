@@ -1,22 +1,10 @@
-#include "unit_test_find_nodes.h"
+#include <wsjcpp_unit_tests.h>
 #include <vector>
 #include <wsjcpp_core.h>
 #include <wsjcpp_obj_tree.h>
 
-REGISTRY_WSJCPP_UNIT_TEST(UnitTestFindNodes)
-
-UnitTestFindNodes::UnitTestFindNodes()
-    : WsjcppUnitTestBase("UnitTestFindNodes") {
-}
-
 // ---------------------------------------------------------------------
-
-void UnitTestFindNodes::init() {
-    // nothing
-}
-
-// ---------------------------------------------------------------------
-
+// CompStruct
 
 class CompStruct : public WsjcppObjTree {
     public:
@@ -28,8 +16,33 @@ class CompStruct : public WsjcppObjTree {
         }
 };
 
-bool UnitTestFindNodes::run() {
-    bool bTestSuccess = true;
+// ---------------------------------------------------------------------
+// UnitTestFindNodes
+
+class UnitTestFindNodes : public WsjcppUnitTestBase {
+    public:
+        UnitTestFindNodes();
+        virtual bool doBeforeTest() override;
+        virtual void executeTest() override;
+        virtual bool doAfterTest() override;
+};
+
+REGISTRY_WSJCPP_UNIT_TEST(UnitTestFindNodes)
+
+UnitTestFindNodes::UnitTestFindNodes()
+    : WsjcppUnitTestBase("UnitTestFindNodes") {
+}
+
+// ---------------------------------------------------------------------
+
+bool UnitTestFindNodes::doBeforeTest() {
+    // nothing
+    return true;
+}
+
+// ---------------------------------------------------------------------
+
+void UnitTestFindNodes::executeTest() {
 
     CompStruct comp;
 
@@ -60,17 +73,17 @@ bool UnitTestFindNodes::run() {
 
     std::vector<WsjcppObjTreeNodeString *> vFoundNodes;
     comp.findNodes("frequency", vFoundNodes);
-    compareN(bTestSuccess, "Find 'frequency' ", vFoundNodes.size(), 1);
+    compare("Find 'frequency' ", vFoundNodes.size(), 1);
 
     if (vFoundNodes.size() == 1) {
         WsjcppObjTreeNode *pNode = vFoundNodes[0];
-        compareN(bTestSuccess, "'frequency' childs size", pNode->getChilds().size(), 1);
+        compare("'frequency' childs size", pNode->getChilds().size(), 1);
         if (pNode->getChilds().size() == 1) {
             WsjcppObjTreeNode *pNode2 = pNode->getChilds()[0];
-            compareB(bTestSuccess, "'frequency' parent of the child", pNode2->getParent() == pNode, true);
-            compareN(bTestSuccess, "'frequency' child type", pNode2->getType(), WSJCPP_OBJ_TREE_NODE_DOUBLE);
+            compare("'frequency' parent of the child", pNode2->getParent() == pNode, true);
+            compare("'frequency' child type", pNode2->getType(), WSJCPP_OBJ_TREE_NODE_DOUBLE);
             WsjcppObjTreeNodeDouble *pDouble = (WsjcppObjTreeNodeDouble *)pNode2;
-            compareS(bTestSuccess, "'frequency' child value", std::to_string(pDouble->getValue()), std::to_string(3.2));
+            compare("'frequency' child value", std::to_string(pDouble->getValue()), std::to_string(3.2));
         }
     }
     
@@ -78,12 +91,16 @@ bool UnitTestFindNodes::run() {
 
     
     comp.findNodes("count", vFoundNodes);
-    compareN(bTestSuccess, "Find 'count' and 'frequency' ", vFoundNodes.size(), 3);
+    compare("Find 'count' and 'frequency' ", vFoundNodes.size(), 3);
 
     vFoundNodes.clear();
     comp.findNodes("count", vFoundNodes);
-    compareN(bTestSuccess, "Find 'count' ", vFoundNodes.size(), 2);
-    
-    return bTestSuccess;
+    compare("Find 'count' ", vFoundNodes.size(), 2);
 }
 
+// ---------------------------------------------------------------------
+
+bool UnitTestFindNodes::doAfterTest() {
+    // nothing
+    return true;
+}
