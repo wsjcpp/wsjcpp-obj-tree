@@ -1,5 +1,5 @@
 # wsjcpp-obj-tree
-[![Build Status](https://api.travis-ci.com/wsjcpp/wsjcpp-obj-tree.svg?branch=master)](https://travis-ci.com/wsjcpp/wsjcpp-obj-tree)
+[![Build Status](https://api.travis-ci.com/wsjcpp/wsjcpp-obj-tree.svg?branch=master)](https://travis-ci.com/wsjcpp/wsjcpp-obj-tree) [![Total alerts](https://img.shields.io/lgtm/alerts/g/wsjcpp/wsjcpp-obj-tree.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/wsjcpp/wsjcpp-obj-tree/alerts/) [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/wsjcpp/wsjcpp-obj-tree.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/wsjcpp/wsjcpp-obj-tree/context:cpp)
 
 Multi Object Tree
 
