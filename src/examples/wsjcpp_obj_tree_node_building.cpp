@@ -43,6 +43,12 @@ bool Address::operator==(const Address& rhs) const {
         && this->getBuildingNumber() == rhs.getBuildingNumber();
 }
 
+Address& Address::operator=(const Address& rhs) {
+    m_sStreetName = rhs.getStreetName();
+    m_sBuildingNumber = rhs.getBuildingNumber();
+    return *this;
+}
+
 // ---------------------------------------------------------------------
 // WsjcppObjTreeNodeBuilding
 

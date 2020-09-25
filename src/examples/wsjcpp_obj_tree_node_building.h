@@ -11,6 +11,7 @@ class Address {
         std::string getStreetName() const;
         std::string getBuildingNumber() const;
         bool operator==(const Address& rhs) const;
+        Address& operator=(const Address& rhs);
 
     private:
         std::string m_sStreetName;
