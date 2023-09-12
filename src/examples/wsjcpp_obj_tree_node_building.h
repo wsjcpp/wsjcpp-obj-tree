@@ -24,10 +24,10 @@ class WsjcppObjTreeNodeBuilding : public WsjcppObjTreeNode {
     public:
         WsjcppObjTreeNodeBuilding(WsjcppObjTree *pTree, const Address &nValue = Address());
         static uint16_t staticType() { return WSJCPP_OBJ_TREE_NODE_BUILDING; };
-        
+
         const Address &getValue();
         void setValue(const Address &nValue);
-        
+
         // custom
         void setNumberOfFloors(int n);
         int getNumberOfFloors();
@@ -46,7 +46,7 @@ class WsjcppObjTreeNodeBuilding : public WsjcppObjTreeNode {
 
         bool readString(std::ifstream &f, std::string &nVal, std::string &sError);
         bool writeString(std::ofstream &f, std::string nVal, std::string &sError);
-        
+
 };
 
 WSJCPP_OBJ_TREE_CHAIN_DECLARE_INLINE(Address, WsjcppObjTreeNodeBuilding)

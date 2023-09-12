@@ -1,11 +1,10 @@
 # wsjcpp-obj-tree
-[![Build Status](https://api.travis-ci.com/wsjcpp/wsjcpp-obj-tree.svg?branch=master)](https://travis-ci.com/wsjcpp/wsjcpp-obj-tree) [![Total alerts](https://img.shields.io/lgtm/alerts/g/wsjcpp/wsjcpp-obj-tree.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/wsjcpp/wsjcpp-obj-tree/alerts/) [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/wsjcpp/wsjcpp-obj-tree.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/wsjcpp/wsjcpp-obj-tree/context:cpp)
+[![Build Status](https://api.travis-ci.com/wsjcpp/wsjcpp-obj-tree.svg?branch=master)](https://travis-ci.com/wsjcpp/wsjcpp-obj-tree)
 
 Multi Object Tree
 
 * Check circles in tree
 * Every node have list of pointers to childs and pointer to parent
-* Tree can has several root nodes
 * Chain style declaration for more comfortable
 * Every node can be customized
 * Tree has full list of pointers to nodes so searching in nodes is non recursive
@@ -43,13 +42,13 @@ Run help:
 $ ./wsjcpp-obj-tree --help
 
   Usage: ./wsjcpp-obj-tree [OPTIONS]
-  Options: 
+  Options:
     --help | -h         help
-  Input or source data can be (only one): 
+  Input or source data can be (only one):
     --input <file> | -i <file>     input binary file with tree
     --random N | -r N              generate random data (more than 0 and less than 1000000)
     --example | -e                 hardcoded example
-  Output data can be (only one): 
+  Output data can be (only one):
     --output <file> | -o <file>    output binary file for tree
     --print | -p                   output binary file for tree
 
